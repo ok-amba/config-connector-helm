@@ -1,0 +1,37 @@
+# Default values for iam-service-account-key.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# https://cloud.google.com/config-connector/docs/reference/resource-docs/iam/iamserviceaccountkey
+
+keyFiles:
+  # Name of the Config Connector resource.
+- name: iamserviceaccountkey-sample
+
+  # Labels on the Config Connector resource.
+  labels: {}
+
+  # Annotations on the Config Connector resource.
+  annotations: {}
+
+  spec:
+    # Immutable. The algorithm used to generate the key, used only on create.
+    # KEY_ALG_RSA_2048 is the default algorithm. Valid values are: "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048".
+    keyAlgorithm: KEY_ALG_RSA_2048
+
+    # Immutable.
+    publicKeyType: TYPE_X509_PEM_FILE
+
+    # Immutable. A field that allows clients to upload their own public key.
+    # If set, use this public key data to create a service account key for given service account.
+    # Please note, the expected format for this field is a base64 encoded X509_PEM.
+    privateKeyType: TYPE_GOOGLE_CREDENTIALS_FILE
+
+    serviceAccountRef:
+      # Reference to service account kubernetes resource.
+      name: iamserviceaccountkey
+      # Use below namespace property if the user is in a different namespace.
+      #namespace: default
+
+      # Allowed value: The `email` field of an `IAMServiceAccount` resource.
+      #external: <service-account>@<project-id>.iam.gserviceaccount.com

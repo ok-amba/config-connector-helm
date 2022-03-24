@@ -1,0 +1,23 @@
+apiVersion: v1
+entries:
+  iam-service-account:
+  - apiVersion: v2
+    created: "2022-03-24T15:47:06.082275718+01:00"
+    description: A Helm chart for creating Google Cloud IAM service accounts.
+    digest: c8dc0600e55eb16c6db2b3d859150dfd9fa2b7e843df383d5add711a8ceb87fb
+    name: iam-service-account
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-service-account-0.1.0/iam-service-account-0.1.0.tgz
+    version: 0.1.0
+  iam-service-account-key:
+  - apiVersion: v2
+    created: "2022-03-24T15:47:06.271795889+01:00"
+    description: A Helm chart for creating Google Cloud IAM service account keys.
+    digest: 538cdfade11074316e502b83a99c0002a4674b33ff02e8e81493933de48b0c65
+    name: iam-service-account-key
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-service-account-key-0.1.0/iam-service-account-key-0.1.0.tgz
+    version: 0.1.0
+generated: "2022-03-24T15:47:06.271806216+01:00"

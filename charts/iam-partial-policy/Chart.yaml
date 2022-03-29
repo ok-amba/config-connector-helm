@@ -1,0 +1,6 @@
+apiVersion: v2
+name: iam-partial-policy
+description: A Helm chart for creating Google Cloud IAM Partial Policy.
+type: application
+version: 0.1.0
+

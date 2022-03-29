@@ -4,26 +4,46 @@
 
 # https://cloud.google.com/config-connector/docs/reference/resource-docs/iam/iamserviceaccount
 
-accounts:
 # Name of the Config Connector resource.
-- name: iamserviceaccount-sample
+name: iamserviceaccount-sample
+
+# Labels on the Config Connector resource.
+labels: {}
+
+# Annotations on the Config Connector resource.
+annotations: {}
+
+spec:
+  # A text description of the service account. Must be less than or equal to 256 UTF-8 bytes.
+  description: "Description of Service Account"
+
+  # Whether the service account is disabled. Defaults to false.
+  #disabled: false
+
+  # The display name for the service account. Can be updated without creating a new resource.
+  displayName: Example Service Account
+
+  # Immutable. Optional. The accountId of the resource. Used for creation and acquisition.
+  # When unset, the value of `metadata.name` is used as the default.
+  #resourceID: ""
+
+keyFile:
+  create: false
 
   # Labels on the Config Connector resource.
   labels: {}
 
   # Annotations on the Config Connector resource.
   annotations: {}
-
   spec:
-    # A text description of the service account. Must be less than or equal to 256 UTF-8 bytes.
-    description: "Description of Service Account"
+    # Immutable. The algorithm used to generate the key, used only on create.
+    # KEY_ALG_RSA_2048 is the default algorithm. Valid values are: "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048".
+    keyAlgorithm: KEY_ALG_RSA_2048
 
-    # Whether the service account is disabled. Defaults to false.
-    #disabled: false
+    # Immutable.
+    publicKeyType: TYPE_X509_PEM_FILE
 
-    # The display name for the service account. Can be updated without creating a new resource.
-    displayName: Example Service Account
-
-    # Immutable. Optional. The accountId of the resource. Used for creation and acquisition.
-    # When unset, the value of `metadata.name` is used as the default.
-    #resourceID: ""
+    # Immutable. A field that allows clients to upload their own public key.
+    # If set, use this public key data to create a service account key for given service account.
+    # Please note, the expected format for this field is a base64 encoded X509_PEM.
+    privateKeyType: TYPE_GOOGLE_CREDENTIALS_FILE

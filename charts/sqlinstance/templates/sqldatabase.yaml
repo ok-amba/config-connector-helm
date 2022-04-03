@@ -1,0 +1,29 @@
+{{- range $db := .Values.databases }}
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  name: {{ $db.name | required "A database resource name is required." }}
+  {{- with $db.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $db.labels }}
+  labels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  charset: {{ $db.spec.charset | default "UTF8" }}
+  collation: {{ $db.spec.collation | default "en_US.UTF8" }}
+  instanceRef:
+    {{- if $db.spec.instanceRef.external }}
+    external: {{ $db.spec.instanceRef.external }}
+    {{- else }}
+    name: {{ $db.spec.instanceRef.name }}
+    {{- if $db.spec.instanceRef.namespace }}
+    namespace: {{ $db.spec.instanceRef.namespace }}
+    {{- end }}
+    {{- end }}
+  {{- if $db.spec.resourceID }}
+  resourceID: {{ $db.spec.resourceID }}
+  {{- end }}
+{{- end }}

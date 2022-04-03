@@ -15,7 +15,7 @@ spec:
   {{- if $user.spec.host }}
   host: {{ $user.spec.host }}
   {{- end }}
-  type: {{ $user.spec.type }}
+  type: {{ $user.spec.type | required "A DB user type is required."}}
   instanceRef:
     {{- if $user.spec.instanceRef.external }}
     external: {{ $user.spec.instanceRef.external }}

@@ -119,4 +119,4 @@ users:
 
     # Immutable. Optional. The name of the resource. Used for creation and acquisition.
     # When unset, the value of `metadata.name` is used as the default.
-    #resourceID: string
+    #resourceID: <service-account>@<project-id>.iam

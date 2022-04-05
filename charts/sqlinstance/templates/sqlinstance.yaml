@@ -7,11 +7,11 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
-    {{ include "sqlinstance.labels" . | nindent 4 }}
+    {{- include "sqlinstance.labels" . | nindent 4 }}
     {{- with .Values.labels }}
       {{ toYaml . | nindent 4 }}
     {{- end }}
 spec:
   {{- with .Values.spec }}
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml . | nindent 2 }}
   {{- end }}

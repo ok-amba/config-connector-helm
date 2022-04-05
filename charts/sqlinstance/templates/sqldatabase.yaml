@@ -7,10 +7,11 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with $db.labels }}
   labels:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{ include "sqlinstance.labels" $ | nindent 4 }}
+    {{- with $db.labels }}
+      {{ toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   charset: {{ $db.spec.charset | default "UTF8" }}
   collation: {{ $db.spec.collation | default "en_US.UTF8" }}

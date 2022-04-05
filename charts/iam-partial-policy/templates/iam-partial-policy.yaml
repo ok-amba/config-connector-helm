@@ -7,10 +7,11 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with $root.labels }}
   labels:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{ include "iam-partial-policy.labels" $ | nindent 4 }}
+    {{- with $root.labels }}
+      {{ toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   resourceRef:
     {{- with $root.spec.resourceRef }}

@@ -4,6 +4,10 @@
 
 # https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqlinstance
 
+global:
+  # Add labels from a parent chart to all manifests.
+  labels: {}
+
 ######################################################
 #                    SQL Instance                    #
 ######################################################

@@ -29,4 +29,7 @@
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,helm
 
+# Chart Releaser
+.cr-release-packages
+
 /default

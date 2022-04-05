@@ -2,4 +2,4 @@ apiVersion: v2
 name: sqlinstance
 description: A Helm chart for creating Google Cloud SQL Instance.
 type: application
-version: 0.1.2
+version: 0.1.3

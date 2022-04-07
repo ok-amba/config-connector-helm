@@ -1,0 +1,33 @@
+# Default values for storagebucket.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# https://cloud.google.com/config-connector/docs/reference/resource-docs/storage/storagebucket
+
+global:
+  # Add labels from a parent chart to all manifests.
+  labels:
+    test: test
+
+# StorageBucket names must be globally unique.
+name: unique-storage-name
+
+# Labels on the Config Connector resource.
+labels: {}
+
+# Annotations on the Config Connector resource.
+annotations:
+  cnrm.cloud.google.com/deletion-policy: abandon
+
+spec:
+  # lifecycleRule:
+  #   - action:
+  #       type: Delete
+  #     condition:
+  #       age: 7
+  # versioning:
+  #   enabled: true
+
+  storageClass: REGIONAL
+  location: europe-west3
+  uniformBucketLevelAccess: true

@@ -25,6 +25,22 @@ spec:
   databaseVersion: POSTGRES_14
   region: europe-west3
   settings:
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: 8
+      enabled: true
+      location: eu
+      pointInTimeRecoveryEnabled: true
+      startTime: 01:00
+      transactionLogRetentionDays: 7
+    insightsConfig:
+      queryInsightsEnabled: true
+      recordApplicationTags: true
+      recordClientAddress: true
+    maintenanceWindow:
+      day: 7
+      hour: 02
+      updateTrack: stable
     availabilityType: REGIONAL
     databaseFlags:
     - name: cloudsql.iam_authentication

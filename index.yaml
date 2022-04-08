@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   iam-partial-policy:
   - apiVersion: v2
+    created: "2022-04-08T10:58:00.892562898+02:00"
+    description: A Helm chart for creating Google Cloud IAM Partial Policy.
+    digest: dbfa997bebc9f8c531a249a5e343207d54f03ac6b919553013adb1394561016a
+    name: iam-partial-policy
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-partial-policy-0.1.2/iam-partial-policy-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     created: "2022-04-07T11:11:44.97282034+02:00"
     description: A Helm chart for creating Google Cloud IAM Partial Policy.
     digest: 9c9aaa6c5959db44d8266fa2eed59c4191f07c7e9a9bf98332e956e3f86d2c29
@@ -77,6 +86,15 @@ entries:
     version: 0.1.0
   sqlinstance:
   - apiVersion: v2
+    created: "2022-04-08T10:58:01.501063165+02:00"
+    description: A Helm chart for creating Google Cloud SQL Instance.
+    digest: f84ade2d5a1ef5cb9261614df4fb5f1b4a84b6b055e23aabf95a0810da2917e8
+    name: sqlinstance
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/sqlinstance-0.1.4/sqlinstance-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
     created: "2022-04-07T11:11:45.531905888+02:00"
     description: A Helm chart for creating Google Cloud SQL Instance.
     digest: e3c89eb9516135e34cb8bb0cf444f6e7a9444fd59745bfbd4cd1768bd4a7c035
@@ -122,4 +140,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2022-04-07T11:11:45.708778753+02:00"
+generated: "2022-04-08T10:58:01.726420568+02:00"

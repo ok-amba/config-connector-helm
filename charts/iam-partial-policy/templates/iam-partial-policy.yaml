@@ -15,9 +15,9 @@ metadata:
 spec:
   resourceRef:
     {{- with $root.spec.resourceRef }}
-      {{- toYaml . | nindent 6 }}
+      {{- tpl (toYaml .) (dict "Values" $.Values "Template" $.Template) | nindent 6 }}
     {{- end }}
   bindings:
-    {{- toYaml $root.spec.bindings | nindent 6 }}
+    {{- tpl (toYaml $root.spec.bindings) (dict "Values" $.Values "Template" $.Template) | nindent 6 }}
 ---
 {{- end }}

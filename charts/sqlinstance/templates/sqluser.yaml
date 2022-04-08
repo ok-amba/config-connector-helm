@@ -19,7 +19,7 @@ spec:
   type: {{ $user.spec.type | required "A DB user type is required."}}
   instanceRef:
     {{- if $user.spec.instanceRef.external }}
-    external: {{ $user.spec.instanceRef.external }}
+    external: {{ tpl $user.spec.instanceRef.external (dict "Values" $.Values "Template" $.Template) }}
     {{- else }}
     name: {{ $user.spec.instanceRef.name }}
     {{- if $user.spec.instanceRef.namespace }}
@@ -27,7 +27,7 @@ spec:
     {{- end }}
     {{- end }}
   {{- if $user.spec.resourceID }}
-  resourceID: {{ $user.spec.resourceID }}
+  resourceID: {{ tpl $user.spec.resourceID (dict "Values" $.Values "Template" $.Template) }}
   {{- end }}
 
   {{- with $user.spec.password }}

@@ -1,10 +1,15 @@
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLInstance
 metadata:
-  name: {{ .Values.name | required "A resource name is required." }}
-  {{- with .Values.annotations }}
+  name: {{ .Values.name | required "A SQL Instance resource name is required." }}
+  {{ if or (not .Values.deletionPolicyRemoveResource) (.Values.annotations) -}}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- with .Values.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{ if not .Values.deletionPolicyRemoveResource -}}
+    cnrm.cloud.google.com/deletion-policy: abandon
+    {{- end -}}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" . | nindent 4 }}

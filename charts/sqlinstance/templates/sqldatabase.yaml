@@ -1,31 +1,49 @@
+{{- if eq (len .Values.databases) 0 -}}
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  name: {{ .Values.name | lower }}
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+  labels:
+    {{- include "sqlinstance.labels" $ | nindent 4 }}
+    {{- with .Values.labels }}
+      {{ toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  charset: UTF8
+  collation: en_US.UTF8
+  instanceRef:
+    name: {{ .Values.name | lower }}
+
+{{- else -}}
+
 {{- range $db := .Values.databases }}
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLDatabase
 metadata:
-  name: {{ $db.name | required "A database resource name is required." }}
-  {{- with $db.annotations }}
+  name: {{ $db.name }}
+  {{ if or (not $db.deletionPolicyRemoveResource) ($db.annotations) -}}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- with $db.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{ if not $db.deletionPolicyRemoveResource -}}
+    cnrm.cloud.google.com/deletion-policy: abandon
+    {{- end -}}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" $ | nindent 4 }}
-    {{- with $db.labels }}
+    {{- with $.Values.labels }}
       {{ toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  charset: {{ $db.spec.charset | default "UTF8" }}
-  collation: {{ $db.spec.collation | default "en_US.UTF8" }}
+  charset: {{ ($db.spec).charset | default "UTF8" }}
+  collation: {{ ($db.spec).collation | default "en_US.UTF8" }}
   instanceRef:
-    {{- if $db.spec.instanceRef.external }}
-    external: {{ $db.spec.instanceRef.external }}
-    {{- else }}
-    name: {{ $db.spec.instanceRef.name }}
-    {{- if $db.spec.instanceRef.namespace }}
-    namespace: {{ $db.spec.instanceRef.namespace }}
-    {{- end }}
-    {{- end }}
-  {{- if $db.spec.resourceID }}
-  resourceID: {{ $db.spec.resourceID }}
-  {{- end }}
+    name: {{ $.Values.name | lower }}
 ---
-{{- end }}
+{{- end -}}
+{{- end -}}
+
+

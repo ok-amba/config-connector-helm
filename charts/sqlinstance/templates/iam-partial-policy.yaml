@@ -1,0 +1,32 @@
+{{ range $sa := .Values.serviceAccounts }}
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPartialPolicy
+metadata:
+  name: {{ $sa.name | lower | required "Service Account name is required" }}-sqlinstance-roles
+  {{- with $sa.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "sqlinstance.labels" $ | nindent 4 }}
+    {{- with $.Values.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    external: projects/{{ $sa.projectId | lower | required "A project ID is required" }}
+  bindings:
+    - role: roles/cloudsql.instanceUser
+      members:
+        - memberFrom:
+            serviceAccountRef:
+              name: {{ $sa.name | lower | required "Service Account name is required" }}
+    - role: {{ $sa.role }}
+      members:
+        - memberFrom:
+            serviceAccountRef:
+              name: {{ $sa.name | lower | required "Service Account name is required" }}
+---
+{{- end }}

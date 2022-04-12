@@ -1,44 +1,29 @@
-{{- range $user := .Values.users }}
+{{- range $sa := .Values.serviceAccounts }}
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLUser
 metadata:
-  name: {{ $user.name | required "A resource name is required." }}
-  {{- with $user.annotations }}
+  name: {{ $sa.name | lower | required "Service Account name is required" }}
+  {{ if or (not $sa.deletionPolicyRemoveResource) ($sa.annotations) -}}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- with $sa.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{ if not $sa.deletionPolicyRemoveResource -}}
+    cnrm.cloud.google.com/deletion-policy: abandon
+    {{- end -}}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" $ | nindent 4 }}
-    {{- with $user.labels }}
-      {{ toYaml . | nindent 4 }}
+    {{- with $.Values.labels }}
+      {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- if $user.spec.host }}
-  host: {{ $user.spec.host }}
+  {{- if ($sa.spec).host }}
+  host: {{ $sa.spec.host }}
   {{- end }}
-  type: {{ $user.spec.type | required "A DB user type is required."}}
+  type: CLOUD_IAM_SERVICE_ACCOUNT
   instanceRef:
-    {{- if $user.spec.instanceRef.external }}
-    external: {{ tpl $user.spec.instanceRef.external (dict "Values" $.Values "Template" $.Template) }}
-    {{- else }}
-    name: {{ $user.spec.instanceRef.name }}
-    {{- if $user.spec.instanceRef.namespace }}
-    namespace: {{ $user.spec.instanceRef.namespace }}
-    {{- end }}
-    {{- end }}
-  {{- if $user.spec.resourceID }}
-  resourceID: {{ tpl $user.spec.resourceID (dict "Values" $.Values "Template" $.Template) }}
-  {{- end }}
-
-  {{- with $user.spec.password }}
-  password:
-  {{- if .value }}
-    value: {{ .value }}
-  {{- else if .valueFrom }}
-    valueFrom:
-      secretKeyRef:
-        key: {{ $user.spec.password.valueFrom.secretKeyRef.key }}
-        name: {{ $user.spec.password.valueFrom.secretKeyRef.name }}
-  {{- end }}
-  {{- end }}
+    name: {{ $.Values.name | lower | required "instanceRef name required" }}
+  resourceID: {{ $sa.name | lower | required "Service Account name is required" }}@{{ $sa.projectId | lower | required "A project ID is required" }}.iam
+---
 {{- end }}

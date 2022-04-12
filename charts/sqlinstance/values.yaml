@@ -14,12 +14,13 @@ global:
 
 name: sqlinstance-sample
 
+# deletionPolicyRemoveResource: true
+
 # Labels on the Config Connector resource.
 labels: {}
 
 # Annotations on the Config Connector resource.
-annotations:
-  cnrm.cloud.google.com/deletion-policy: abandon
+annotations: {}
 
 spec:
   databaseVersion: POSTGRES_14
@@ -54,37 +55,19 @@ spec:
 
 # https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqldatabase
 
-databases:
-- name: sqlinstance-sample
+# If you leave the "databases" array empty, a default database with the same name as the SQL Instance will be created, with default values.
+# If you want another database name or create multiple datebases, add them to the array below with minimum a name. Examples are provided.
 
-  # Labels on the Config Connector resource.
-  labels: {}
+databases: []
+  # - name: database-01
 
-  # Annotations on the Config Connector resource.
-  annotations:
-    cnrm.cloud.google.com/deletion-policy: abandon
-
-  spec:
-    # The charset value. Postgres databases only support a value of 'UTF8' at creation time.
-    charset: UTF8
-
-    # The collation value. Postgres databases only support a value of 'en_US.UTF8' at creation time.
-    collation: en_US.UTF8
-
-    instanceRef:
-      # Name of the referent SQL Instance.
-      name: sqlinstance-sample
-
-      # Namespace of the referent, if it's in different namespace.
-      #namespace: string
-
-      # If its not possible to reference a SQL Instance by a Kubernetes object, you can refernce an external instance.
-      # Allowed value: The `name` field of a `SQLInstance` resource.
-      #external: string
-
-    # Immutable. Optional. The name of the resource. Used for creation and acquisition.
-    # When unset, the value of `metadata.name` is used as the default.
-    #resourceID: string
+  # - name: database-02
+  #   deletionPolicyRemoveResource: true
+  #   annotations:
+  #     some-annotation: some-value
+  #   spec:
+  #     charset: some-other-value
+  #     collation: some-other-value
 
 
 ######################################################
@@ -93,46 +76,16 @@ databases:
 
 # https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqluser
 
-users:
-- name: sqluser-sample
+# Below array hold the service accounts which should get access.
+# The SA will get the "roles/cloudsql.instanceUser" to be able to connect with Cloud SQL Proxy
+# and what ever role you define in the "role" property. Role reference https://cloud.google.com/iam/docs/understanding-roles#cloud-sql-roles
+serviceAccounts: []
+  # - googleId: <service-account-name>@<project-id>.iam
+  #   role: <google-cloud-role>
 
-  # Labels on the Config Connector resource.
-  labels: {}
-
-  spec:
-    # Immutable. The host the user can connect from.
-    # This is only supported for MySQL instances. Don't set this field for PostgreSQL instances.
-    # Can be an IP address. Changing this forces a new resource to be created.
-    #host: string
-
-
-    # Immutable. The user type. It determines the method to authenticate the user during login.
-    # The default is the database's built-in user type. Flags include "BUILT_IN", "CLOUD_IAM_USER", or "CLOUD_IAM_SERVICE_ACCOUNT".
-    type: CLOUD_IAM_SERVICE_ACCOUNT
-
-    # The password for the user. Can be updated. For Postgres instances this is a Required field,
-    # unless type is set to either CLOUD_IAM_USER or CLOUD_IAM_SERVICE_ACCOUNT.
-    #password:
-      # Value of the field. Cannot be used if 'valueFrom' is specified.
-      #value: string
-
-      # Source for the field's value. Cannot be used if 'value' is specified.
-      #valueFrom:
-        #secretKeyRef:
-          #key: string
-          #name: string
-
-    instanceRef:
-      # Name of the referent SQL Instance.
-      name: sqlinstance-sample
-
-      # Namespace of the referent, if it's in different namespace.
-      #namespace: string
-
-      # If its not possible to reference a SQL Instance by a Kubernetes object, you can refernce an external instance.
-      # Allowed value: The `name` field of a `SQLInstance` resource.
-      #external: string
-
-    # Immutable. Optional. The name of the resource. Used for creation and acquisition.
-    # When unset, the value of `metadata.name` is used as the default.
-    #resourceID: <service-account>@<project-id>.iam
+  # - name: my-service-account
+  #   projectId: my-google-project-id
+  #   role: role/cloudsql.editor
+  #   deletionPolicyRemoveResource: true
+  #   annotations:
+  #     some-annotation: some-value

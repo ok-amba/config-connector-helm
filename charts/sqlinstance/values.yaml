@@ -80,12 +80,10 @@ databases: []
 # The SA will get the "roles/cloudsql.instanceUser" to be able to connect with Cloud SQL Proxy
 # and what ever role you define in the "role" property. Role reference https://cloud.google.com/iam/docs/understanding-roles#cloud-sql-roles
 serviceAccounts: []
-  # - googleId: <service-account-name>@<project-id>.iam
-  #   role: <google-cloud-role>
-
   # - name: my-service-account
   #   projectId: my-google-project-id
   #   role: role/cloudsql.editor
+  #   # Below values are optional
   #   deletionPolicyRemoveResource: true
   #   annotations:
   #     some-annotation: some-value

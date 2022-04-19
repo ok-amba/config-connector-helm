@@ -6,8 +6,7 @@
 
 global:
   # Add labels from a parent chart to all manifests.
-  labels:
-    test: test
+  labels: {}
 
 # StorageBucket names must be globally unique.
 name: unique-storage-name
@@ -20,14 +19,17 @@ annotations:
   cnrm.cloud.google.com/deletion-policy: abandon
 
 spec:
-  # lifecycleRule:
-  #   - action:
-  #       type: Delete
-  #     condition:
-  #       age: 7
-  # versioning:
-  #   enabled: true
-
   storageClass: REGIONAL
   location: europe-west3
   uniformBucketLevelAccess: true
+
+# Below array hold the service accounts which should get access to the storage bucket.
+# The service account will get the specified role only on the the bucket created, using conditions.
+# Role reference https://cloud.google.com/iam/docs/understanding-roles#cloud-storage-roles
+serviceAccounts: []
+  # - name: my-service-account
+  #   projectId: my-google-project-id
+  #   role: roles/storage.objectViewer
+  #   # Below value are optional
+  #   annotations:
+  #     some-annotation: some-value

@@ -82,7 +82,7 @@ databases: []
 serviceAccounts: []
   # - name: my-service-account
   #   projectId: my-google-project-id
-  #   role: role/cloudsql.editor
+  #   role: roles/cloudsql.editor
   #   # Below values are optional
   #   deletionPolicyRemoveResource: true
   #   annotations:

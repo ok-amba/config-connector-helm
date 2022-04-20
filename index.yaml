@@ -141,6 +141,15 @@ entries:
     version: 0.1.0
   storagebucket:
   - apiVersion: v2
+    created: "2022-04-20T08:45:15.801195734+02:00"
+    description: A Helm chart for creating Google Cloud Storage Bucket.
+    digest: 8e5e686d297be1cc35f5ce168ba9a9aef1a2f35ead9fd8ba5a3ed6878855d137
+    name: storagebucket
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.2.0/storagebucket-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     created: "2022-04-07T11:11:45.70873818+02:00"
     description: A Helm chart for creating Google Cloud Storage Bucket.
     digest: dfb2ccae11509f9e51bd2297972aac2ae16511dc925790ca5b506cfd3570ab64
@@ -149,4 +158,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2022-04-12T11:51:22.899489866+02:00"
+generated: "2022-04-20T08:45:15.801251915+02:00"

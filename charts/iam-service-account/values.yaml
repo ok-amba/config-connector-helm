@@ -9,6 +9,7 @@ global:
   labels: {}
 
 # Name of the Config Connector resource.
+# The name will be the ID of the Google Service Account and must be between 6 and 30 characters.
 name: iamserviceaccount-sample
 
 # Labels on the Config Connector resource.

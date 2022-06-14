@@ -32,6 +32,9 @@ spec:
   # When unset, the value of `metadata.name` is used as the default.
   #resourceID: ""
 
+# If keyFile is enabled, Config Connector will create a service account JSON key file and
+# add it to the K8s namespace as a secret called "<service-account-name>-key".
+# In this example the secret will be named "iamserviceaccount-sample-key".
 keyFile:
   create: false
 

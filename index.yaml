@@ -67,6 +67,15 @@ entries:
     version: 0.1.0
   iam-service-account-key:
   - apiVersion: v2
+    created: "2022-06-14T12:23:02.467973249+02:00"
+    description: A Helm chart for creating Google Cloud IAM service account keys.
+    digest: 5fa8876306f4ae4fa51fccd3c5f2cdbe819af7d05947c3e471e701fb4dc91627
+    name: iam-service-account-key
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-service-account-key-0.2.2/iam-service-account-key-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
     created: "2022-04-07T11:11:45.342562272+02:00"
     description: A Helm chart for creating Google Cloud IAM service account keys.
     digest: 129b224c67e964d2275ff62a0fef3dfe7cb2c8befd63fc08b8f50c0f51768c35
@@ -167,4 +176,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2022-06-14T11:52:10.791823217+02:00"
+generated: "2022-06-14T12:23:02.848670695+02:00"

@@ -18,12 +18,11 @@ spec:
     kind: Project
     external: projects/{{ $sa.projectId | lower | required "A project ID is required" }}
   bindings:
-    - role: roles/cloudsql.instanceUser
-      members:
-        - memberFrom:
-            serviceAccountRef:
-              name: {{ $sa.name | lower | required "Service Account name is required" }}
+    {{- if $sa.role }}
     - role: {{ $sa.role }}
+    {{- else }}
+    - role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+    {{- end }}
       members:
         - memberFrom:
             serviceAccountRef:

@@ -77,13 +77,14 @@ databases: []
 # https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqluser
 
 # Below array hold the service accounts which should get access.
-# The SA will get the "roles/cloudsql.instanceUser" to be able to connect with Cloud SQL Proxy
-# and what ever role you define in the "role" property. Role reference https://cloud.google.com/iam/docs/understanding-roles#cloud-sql-roles
+# The SA will get the necessary roles to be able to connect using Cloud SQL Proxy and write to the DB.
+# You can how ever change the default OK amba custom role by setting the "role" property.
 serviceAccounts: []
   # - name: my-service-account
   #   projectId: my-google-project-id
-  #   role: roles/cloudsql.editor
+
   #   # Below values are optional
+  #   role: your-google-role-here
   #   deletionPolicyRemoveResource: true
   #   annotations:
   #     some-annotation: some-value

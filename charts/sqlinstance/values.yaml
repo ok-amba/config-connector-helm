@@ -14,7 +14,12 @@ global:
 
 name: sqlinstance-sample
 
-# deletionPolicyRemoveResource: true
+# Uncomment below line to delete the SQL Instance in Google on Kubernetes object deletion.
+#deletionPolicyRemoveResource: true
+
+# Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
+# https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
+argoSyncWave: -2
 
 # Labels on the Config Connector resource.
 labels: {}

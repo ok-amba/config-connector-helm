@@ -3,14 +3,17 @@ apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLUser
 metadata:
   name: {{ $sa.name | lower | required "Service Account name is required" }}
-  {{ if or (not $sa.deletionPolicyRemoveResource) ($sa.annotations) -}}
+  {{- if or (not $sa.deletionPolicyRemoveResource) ($sa.annotations) ($.Values.argoSyncWave) }}
   annotations:
     {{- with $sa.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-    {{ if not $sa.deletionPolicyRemoveResource -}}
+    {{- if not $sa.deletionPolicyRemoveResource }}
     cnrm.cloud.google.com/deletion-policy: abandon
-    {{- end -}}
+    {{- end }}
+    {{- if $.Values.argoSyncWave }}
+    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
+    {{- end }}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" $ | nindent 4 }}

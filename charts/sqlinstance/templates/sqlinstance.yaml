@@ -2,14 +2,17 @@ apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLInstance
 metadata:
   name: {{ .Values.name | required "A SQL Instance resource name is required." }}
-  {{ if or (not .Values.deletionPolicyRemoveResource) (.Values.annotations) -}}
+  {{- if or (not .Values.deletionPolicyRemoveResource) (.Values.annotations) (.Values.argoSyncWave) }}
   annotations:
     {{- with .Values.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-    {{ if not .Values.deletionPolicyRemoveResource -}}
+    {{- if not .Values.deletionPolicyRemoveResource }}
     cnrm.cloud.google.com/deletion-policy: abandon
-    {{- end -}}
+    {{- end }}
+    {{- if .Values.argoSyncWave }}
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
+    {{- end }}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" . | nindent 4 }}

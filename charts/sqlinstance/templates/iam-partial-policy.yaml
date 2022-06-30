@@ -3,9 +3,9 @@ apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:
   name: {{ $sa.name | lower | required "Service Account name is required" }}-sqlinstance-roles
-  {{- with $sa.annotations }}
+  {{- if $.Values.argoSyncWave }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" $ | nindent 4 }}

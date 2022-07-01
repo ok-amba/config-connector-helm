@@ -20,7 +20,7 @@ annotations: {}
 
 # Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
 # https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
-argoSyncWave: -2
+argoSyncWave: -5
 
 spec:
   # A text description of the service account. Must be less than or equal to 256 UTF-8 bytes.

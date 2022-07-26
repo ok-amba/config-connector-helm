@@ -1,0 +1,87 @@
+# Default values for iam-service-account-key.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# https://cloud.google.com/config-connector/docs/reference/resource-docs/iam/iamserviceaccountkey
+
+global:
+  # Add labels from a parent chart to all manifests.
+  labels: {}
+
+# Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
+# https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
+argoSyncWave: -5
+
+# Google project number, not the ID. This is used to give the default pubsub service account
+# access to deadletter topics. Get a list with the "gcloud projects list" command.
+projectNumber: "123456789"
+
+# Below labels and annotations will be set on all resources.
+annotations: {}
+labels: {}
+
+############################################################
+#                         Topics                           #
+############################################################
+
+# Global publishers will get the publisher role on all topics in this chart.
+# The list will be merged with the publishers set on each specific topic.
+globalPublishers: []
+  # - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
+
+topics:
+  - name: my-topic-name-01
+
+    # If deadletter is enabled, a topic named "deadletter.<topic-name>" will be created.
+    enableDeadletterTopic: true
+
+    # When enabled, retains messages on the Topic for up to 31 days after they get acknowledged. This feature is not free.
+    # Cannot be more than 31 days or less than 10 minutes. Value is en seconds and ends with "s" eg. "600s".
+    messageRetentionDuration: null
+
+    # A list of full service accounts ID's to get the publisher role on this topic.
+    publishers:
+      - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
+
+  # Below example is a minumum configuration of a topic. No deadletter topic or no messageRetentionDuration.
+  - name: my-topic-name-02
+
+############################################################
+#                      Subscriptions                       #
+############################################################
+
+# Below list of service account ID's will be given the subscriber role on all subscriptions.
+globalSubscribers: []
+  # - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
+
+# Below specs will be merged into all subscriptions specs.
+# They can be overwritten on each subscription if pleased.
+globalSubscriptionSpecs: {}
+  # retryPolicy:
+  #   maximumBackoff: 600s
+  #   minimumBackoff: 500s
+
+subscriptions:
+  - name: my-sub-name-01
+
+    # A list of full service accounts ID's to get the subscriber role on this subscription.
+    subscribers:
+      - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
+
+    # Below spec block supports all values from the documentation.
+    # https://cloud.google.com/config-connector/docs/reference/resource-docs/pubsub/pubsubsubscription#spec
+    spec:
+      topicRef:
+        name: my-topic-name-01
+      deadLetterPolicy:
+        deadLetterTopicRef:
+          name: deadletter.my-topic-name-01
+      retryPolicy:
+        maximumBackoff: 200s
+        minimumBackoff: 100s
+
+  # Below example is a minumum configuration of a subscription.
+  - name: my-sub-name-02
+    spec:
+      topicRef:
+        name: my-topic-name-02

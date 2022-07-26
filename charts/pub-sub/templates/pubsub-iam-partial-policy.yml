@@ -3,7 +3,7 @@
 ############################################################
 
 {{- range $topic := .Values.topics  }}
-{{- if or $topic.publishers $.Values.globalPublishers }}
+{{- if or $topic.publishers $topic.isDeadletterTopic $.Values.globalPublishers }}
 
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
@@ -31,17 +31,22 @@ spec:
   bindings:
     - role: roles/pubsub.publisher
       members:
-        {{- $publishers := concat  ($topic.publishers | default list) $.Values.globalPublishers  }}
+        {{- if $topic.isDeadletterTopic }}
+        - member: "serviceAccount:service-{{ $.Values.projectNumber }}@gcp-sa-pubsub.iam.gserviceaccount.com"
+        {{- else }}
+        {{- $publishers := concat  ($topic.publishers | default list) $.Values.globalPublishers | uniq }}
         {{- range $sa := $publishers  }}
         - member:  "serviceAccount:{{ $sa }}"
         {{- end }}
+        {{- end }}
+
 ---
 {{- end }}
 {{- end }}
 
 
 {{- range $sub := .Values.subscriptions }}
-{{- if or $sub.subscribers $.Values.globalSubscribers }}
+{{- if or $sub.subscribers $sub.spec.deadLetterPolicy $.Values.globalSubscribers }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:
@@ -71,6 +76,9 @@ spec:
         {{- $subscribers := concat  ($sub.subscribers | default list) $.Values.globalSubscribers  }}
         {{- range $sa := $subscribers }}
         - member:  "serviceAccount:{{ $sa }}"
+        {{- end }}
+        {{- if $sub.spec.deadLetterPolicy }}
+        - member:  "serviceAccount:service-{{ $.Values.projectNumber }}@gcp-sa-pubsub.iam.gserviceaccount.com"
         {{- end }}
 ---
 {{- end }}

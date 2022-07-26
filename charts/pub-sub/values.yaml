@@ -24,7 +24,7 @@ labels: {}
 #                         Topics                           #
 ############################################################
 
-# Global publishers will get the publisher role on all topics in this chart.
+# Global publishers will get the publisher role on all topics in this chart, except deadletter topics.
 # The list will be merged with the publishers set on each specific topic.
 globalPublishers: []
   # - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
@@ -32,8 +32,8 @@ globalPublishers: []
 topics:
   - name: my-topic-name-01
 
-    # If deadletter is enabled, a topic named "deadletter.<topic-name>" will be created.
-    enableDeadletterTopic: true
+    # Set below property to true to create the necessary policy bindings for a deadletter topic.
+    isDeadletterTopic: false
 
     # When enabled, retains messages on the Topic for up to 31 days after they get acknowledged. This feature is not free.
     # Cannot be more than 31 days or less than 10 minutes. Value is en seconds and ends with "s" eg. "600s".
@@ -45,6 +45,10 @@ topics:
 
   # Below example is a minumum configuration of a topic. No deadletter topic or no messageRetentionDuration.
   - name: my-topic-name-02
+
+  # Below is an example of a deadletter topic.
+  - name: deadletter.my-topic-name
+    isDeadletterTopic: true
 
 ############################################################
 #                      Subscriptions                       #
@@ -65,8 +69,8 @@ subscriptions:
   - name: my-sub-name-01
 
     # A list of full service accounts ID's to get the subscriber role on this subscription.
-    subscribers:
-      - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
+    subscribers: []
+      # - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
 
     # Below spec block supports all values from the documentation.
     # https://cloud.google.com/config-connector/docs/reference/resource-docs/pubsub/pubsubsubscription#spec
@@ -75,7 +79,7 @@ subscriptions:
         name: my-topic-name-01
       deadLetterPolicy:
         deadLetterTopicRef:
-          name: deadletter.my-topic-name-01
+          name: deadletter.my-topic-name
       retryPolicy:
         maximumBackoff: 200s
         minimumBackoff: 100s

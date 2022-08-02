@@ -6,6 +6,7 @@
 
 global:
   # Add labels from a parent chart to all manifests.
+  # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
 # Name of the Config Connector resource.
@@ -13,6 +14,7 @@ global:
 name: iamserviceaccount-sample
 
 # Labels on the Config Connector resource.
+# Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
 labels: {}
 
 # Annotations on the Config Connector resource.

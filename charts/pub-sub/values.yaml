@@ -6,6 +6,7 @@
 
 global:
   # Add labels from a parent chart to all manifests.
+  # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
 # Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
@@ -18,6 +19,8 @@ projectNumber: "123456789"
 
 # Below labels and annotations will be set on all resources.
 annotations: {}
+
+# Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
 labels: {}
 
 ############################################################

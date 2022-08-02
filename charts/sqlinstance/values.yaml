@@ -6,6 +6,7 @@
 
 global:
   # Add labels from a parent chart to all manifests.
+  # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
 ######################################################
@@ -22,6 +23,7 @@ name: sqlinstance-sample
 argoSyncWave: -5
 
 # Labels on the Config Connector resource.
+# Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
 labels: {}
 
 # Annotations on the Config Connector resource.

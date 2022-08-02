@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   iam-partial-policy:
   - apiVersion: v2
+    created: "2022-08-02T10:04:02.932624631Z"
+    description: A Helm chart for creating Google Cloud IAM Partial Policy.
+    digest: 286df54dbd6a8e3d7b63a28e5a4f589bda310822f20714808c4e0030f13bd3ba
+    name: iam-partial-policy
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-partial-policy-0.1.5/iam-partial-policy-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
     created: "2022-07-27T13:27:31.281642161Z"
     description: A Helm chart for creating Google Cloud IAM Partial Policy.
     digest: 964a082dda280a6a834b6394dd371fe630657a0f876008119ca7a723f782746e
@@ -47,6 +56,15 @@ entries:
     - https://github.com/ok-amba/config-connector-helm/releases/download/iam-partial-policy-0.1.0/iam-partial-policy-0.1.0.tgz
     version: 0.1.0
   iam-service-account:
+  - apiVersion: v2
+    created: "2022-08-02T10:04:03.227660473Z"
+    description: A Helm chart for creating Google Cloud IAM service accounts.
+    digest: 7914e8802b17517abc40aa19ca48a2ce1c1ea3d35b7e2362395ae50ec40185a3
+    name: iam-service-account
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-service-account-1.1.4/iam-service-account-1.1.4.tgz
+    version: 1.1.4
   - apiVersion: v2
     created: "2022-07-27T13:27:31.558041667Z"
     description: A Helm chart for creating Google Cloud IAM service accounts.
@@ -121,6 +139,15 @@ entries:
     version: 0.1.0
   iam-service-account-key:
   - apiVersion: v2
+    created: "2022-08-02T10:04:03.495945192Z"
+    description: A Helm chart for creating Google Cloud IAM service account keys.
+    digest: 8fc0dac96db92c91bc17d8de841fe1d612c0b4e94c6948dbae5a6780489935df
+    name: iam-service-account-key
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-service-account-key-0.2.5/iam-service-account-key-0.2.5.tgz
+    version: 0.2.5
+  - apiVersion: v2
     created: "2022-07-27T13:27:31.833964608Z"
     description: A Helm chart for creating Google Cloud IAM service account keys.
     digest: 7d5068ec8ec0f62905a72f512f01016fd21e35208e508067729b0716baea6094
@@ -194,6 +221,15 @@ entries:
     - https://github.com/ok-amba/config-connector-helm/releases/download/pub-sub-0.0.1/pub-sub-0.0.1.tgz
     version: 0.0.1
   sqlinstance:
+  - apiVersion: v2
+    created: "2022-08-02T10:04:03.769513016Z"
+    description: A Helm chart for creating Google Cloud SQL Instance.
+    digest: 9905d5f028a831ffa8138bfe7d4eb7ebdd4b29abfeb84fabb7c45be11eed978c
+    name: sqlinstance
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/sqlinstance-2.1.4/sqlinstance-2.1.4.tgz
+    version: 2.1.4
   - apiVersion: v2
     created: "2022-07-27T13:27:32.111858584Z"
     description: A Helm chart for creating Google Cloud SQL Instance.
@@ -295,6 +331,15 @@ entries:
     version: 0.1.0
   storagebucket:
   - apiVersion: v2
+    created: "2022-08-02T10:04:04.058544653Z"
+    description: A Helm chart for creating Google Cloud Storage Bucket.
+    digest: 1a8fa822d0a1c173c6a5c06bf18d0c579805897c1da7253f3fad040ec32c70cb
+    name: storagebucket
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.2.3/storagebucket-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
     created: "2022-07-27T13:27:32.399348091Z"
     description: A Helm chart for creating Google Cloud Storage Bucket.
     digest: 7868abee543222b44d33873ee5cda5445b224b84b38812a98e2d8e292fd988bb
@@ -330,4 +375,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2022-08-02T08:56:21.549794737Z"
+generated: "2022-08-02T10:04:04.058691253Z"

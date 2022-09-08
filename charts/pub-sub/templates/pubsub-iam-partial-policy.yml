@@ -73,7 +73,7 @@ spec:
   bindings:
     - role: roles/pubsub.subscriber
       members:
-        {{- $subscribers := concat  ($sub.subscribers | default list) $.Values.globalSubscribers  }}
+        {{- $subscribers := concat  ($sub.subscribers | default list) $.Values.globalSubscribers | uniq }}
         {{- range $sa := $subscribers }}
         - member:  "serviceAccount:{{ $sa }}"
         {{- end }}

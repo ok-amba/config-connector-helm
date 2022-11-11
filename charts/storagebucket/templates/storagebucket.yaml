@@ -2,9 +2,14 @@ apiVersion: storage.cnrm.cloud.google.com/v1beta1
 kind: StorageBucket
 metadata:
   name: {{ .Values.name | required "A StorageBucket resource name is required." }}
-  {{- with .Values.annotations }}
+  {{- if or (.Values.annotations) (.Values.argoSyncWave) }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- with .Values.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.argoSyncWave }}
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
+    {{- end }}
   {{- end }}
   labels:
     {{- include "storagebucket.labels" $ | nindent 4 }}

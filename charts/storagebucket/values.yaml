@@ -20,6 +20,10 @@ labels: {}
 annotations:
   cnrm.cloud.google.com/deletion-policy: abandon
 
+# Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
+# https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
+argoSyncWave: -5
+
 spec:
   storageClass: REGIONAL
   location: europe-west3

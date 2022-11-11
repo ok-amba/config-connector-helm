@@ -35,7 +35,8 @@ Setting up Lifecycle rules can be a bit confusing so here's a few exampels.
 ```yaml
 ...
 spec:
-  versioning: true
+  versioning:
+    enabled: true
   lifecycleRule:
     # Will keep 5 versions of an object incl. the live object. 
     # Older versions will be deleted.

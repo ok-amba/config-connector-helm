@@ -25,7 +25,7 @@ annotations:
 argoSyncWave: -5
 
 spec:
-  storageClass: REGIONAL
+  storageClass: STANDARD
   location: europe-west3
   uniformBucketLevelAccess: true
 

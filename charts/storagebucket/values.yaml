@@ -16,12 +16,21 @@ name: unique-storage-name
 # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
 labels: {}
 
-# Annotations on the Config Connector resource.
-annotations:
-  cnrm.cloud.google.com/deletion-policy: abandon
+# Annotations on the Config Connector StorageBucket resource.
+annotations: {}
 
+# Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
+# https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
+argoSyncWave: -5
+
+# Make the storage bucket public.
+# WARNING!!! This will make all files in this bucket public!
+makeAllFilesInThisBucketPublic: false
+
+# Define sepcifications below. Any property in the "Schema" section will work.
+# https://cloud.google.com/config-connector/docs/reference/resource-docs/storage/storagebucket#schema
 spec:
-  storageClass: REGIONAL
+  storageClass: STANDARD
   location: europe-west3
   uniformBucketLevelAccess: true
 
@@ -29,9 +38,7 @@ spec:
 # The service account will get the specified role only on the the bucket created, using conditions.
 # Role reference https://cloud.google.com/iam/docs/understanding-roles#cloud-storage-roles
 serviceAccounts: []
-  # - name: my-service-account
-  #   projectId: my-google-project-id
+  # - name: <service-accout-name>
   #   role: roles/storage.objectViewer
-  #   # Below value are optional
-  #   annotations:
-  #     some-annotation: some-value
+  # - name: <service-account-name>@<some-different-project-id>.iam.gserviceaccount.com 
+  #   role: roles/storage.objectViewer

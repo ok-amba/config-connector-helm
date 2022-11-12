@@ -1,31 +1,39 @@
-{{ range $sa := .Values.serviceAccounts }}
+# Policy for granting 
+{{- if or .Values.serviceAccounts .Values.makeAllFilesInThisBucketPublic }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:
-  name: {{ $sa.name | lower | required "Service Account name is required" }}-storagebucket-roles
-  {{- with $sa.annotations }}
+  name: {{ .Values.name }}-roles
+  {{- if $.Values.argoSyncWave }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
   {{- end }}
   labels:
     {{- include "storagebucket.labels" $ | nindent 4 }}
     {{- with $.Values.labels }}
-      {{- toYaml . | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
   resourceRef:
-    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
-    kind: Project
-    external: projects/{{ $sa.projectId | lower | required "A project ID is required" }}
+    apiVersion: storage.cnrm.cloud.google.com/v1beta1
+    kind: StorageBucket
+    name: {{ $.Values.name }}
   bindings:
-    - role: {{ $sa.role }}
-      condition:
-        description: This condition will restrict the policy to a specific bucket.
-        expression: resource.name.startsWith("projects/_/buckets/{{ $.Values.name }}")
-        title: Restrict Bucket
+    {{- if .Values.makeAllFilesInThisBucketPublic }}
+    - role: roles/storage.objectViewer
       members:
+        - member: allUsers 
+    {{- end }}
+    {{- range $sa := .Values.serviceAccounts }}
+    - role: {{ $sa.role }}
+      members:
+        {{- if (.name | contains "@") }}
+        - member: "serviceAccount:{{ .name }}"
+        {{- else }}
         - memberFrom:
             serviceAccountRef:
-              name: {{ $sa.name | lower | required "Service Account name is required" }}
----
+              name: {{ .name }}
+        {{- end -}}
+    {{- end }}
 {{- end }}
+---

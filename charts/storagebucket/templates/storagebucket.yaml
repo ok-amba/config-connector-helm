@@ -1,11 +1,21 @@
+{{- if gt (len .Values.name) 57 }}
+{{- fail (printf "storage bucket name [%s, len: %d] too long. must have max length of 57." .Values.name (len .Values.name)) }}
+{{- end }}
+
 apiVersion: storage.cnrm.cloud.google.com/v1beta1
 kind: StorageBucket
 metadata:
   name: {{ .Values.name | required "A StorageBucket resource name is required." }}
-  {{- with .Values.annotations }}
   annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    {{- if or (.Values.annotations) (.Values.argoSyncWave) }}
+    {{- with .Values.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
+    {{- if .Values.argoSyncWave }}
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     {{- include "storagebucket.labels" $ | nindent 4 }}
     {{- with .Values.labels }}

@@ -13,6 +13,10 @@ global:
 # https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
 argoSyncWave: -5
 
+# Google project ID, this property is only needed if you are creating Topic Schemas.
+# This should be set in each environment values file.
+projectID: set-in-environment-values-file
+
 # Google project number, not the ID. This is used to give the default pubsub service account
 # access to deadletter topics. Get a list with the "gcloud projects list" command.
 projectNumber: "123456789"
@@ -102,3 +106,40 @@ subscriptions: {}
   #   spec:
   #     topicRef:
   #       name: my-topic-name-02
+
+############################################################
+#                      Topic Schemas                       #
+############################################################
+
+# Remeber a schema is immutable. When first created you cannot change it.
+# You will have to create a new version and migrate to it.
+
+topicSchemas: {}
+  # # The "schemaShortName01" is not used for anything other than for you to reference in an environment values file.
+  # # Each short name must be unique.
+  # schemaShortName01:
+  #   name: my-schema-name
+  #
+  #   # Can be PROTOCOL_BUFFER or AVRO
+  #   type: AVRO
+  #
+  #   # The actual schema in PROTOCOL_BUFFER or AVRO.
+  #   definition: |
+  #     {
+  #      "type" : "record",
+  #      "name" : "Avro",
+  #      "fields" : [
+  #        {
+  #          "name" : "StringField",
+  #          "type" : "string"
+  #        },
+  #        {
+  #          "name" : "FloatField",
+  #          "type" : "float"
+  #        },
+  #        {
+  #          "name" : "BooleanField",
+  #          "type" : "boolean"
+  #        }
+  #      ]
+  #     }

@@ -63,6 +63,12 @@ topics: {}
   #   name: deadletter.my-topic-name
   #   isDeadletterTopic: true
 
+  # # Below is an example of a topic using a schema.
+  # # Create a schema and reference the name of it.
+  # topicShortName04:
+  #   name: my-topic-name-04
+  #   schemaNameRef: my-schema-name
+
 ############################################################
 #                      Subscriptions                       #
 ############################################################

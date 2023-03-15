@@ -203,6 +203,15 @@ entries:
     version: 0.1.0
   pub-sub:
   - apiVersion: v2
+    created: "2023-03-15T20:29:59.734547549Z"
+    description: A Helm chart for creating Google Cloud Pub/Sub resources.
+    digest: eab0a297cc02487ba08bbcfb2ba415630a826e774577544293ac561389876e24
+    name: pub-sub
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/pub-sub-1.1.0/pub-sub-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
     created: "2022-09-08T09:27:47.56866437Z"
     description: A Helm chart for creating Google Cloud Pub/Sub resources.
     digest: 77c173f1de6e287bc3b11cd22e39526d569514415c2cb049b6f3027f26d5e369
@@ -411,4 +420,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2023-01-16T14:35:53.966417289Z"
+generated: "2023-03-15T20:29:59.734687855Z"

@@ -27,6 +27,7 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 {{- with $topic }}
+{{- if or .messageRetentionDuration .schemaRef }}
 spec:
   {{- if .messageRetentionDuration }}
   messageRetentionDuration: {{ .messageRetentionDuration | quote }}
@@ -37,6 +38,7 @@ spec:
     schemaRef:
       name: {{ .schemaNameRef }}
   {{- end }}
+{{- end }}
 {{- end }}
 ---
 {{- end }}

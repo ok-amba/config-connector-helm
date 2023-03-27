@@ -1,0 +1,36 @@
+{{ range $dataset := .Values.dataSets }}
+{{ range $dataset.tables }}
+apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
+kind: BigQueryTable
+metadata:
+  name: {{ include "big-query.table-name" . }}
+  labels:
+    {{- include "big-query.labels" $ | nindent 4 }}
+    {{- with .labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  description: {{ .description | quote }}
+  resourceID: {{ .name | camelcase }}
+  datasetRef:
+    name: {{ include "big-query.dataset-name" $dataset }}
+  {{- if .externalDataConfiguration }}
+  externalDataConfiguration: {{ .externalDataConfiguration | toYaml | nindent 4 }}
+  {{- end }}
+
+  {{- if .view }}
+  view: 
+    useLegacySql: {{ .view.useLegacySql | default false }}
+    query: | {{ .view.query | nindent 6 }} 
+  {{- end }}
+
+  {{- if and .timePartitioning (not .view) }}
+  timePartitioning: {{ .timePartitioning | toYaml | nindent 4 }}
+  {{- end }}
+
+  {{- if and .schema (not .view) }}
+  schema: | {{ .schema | nindent 4 }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}

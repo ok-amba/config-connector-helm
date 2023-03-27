@@ -14,14 +14,20 @@ spec:
   description: {{ .description }}
   location: europe-west3
   resourceID: {{ .name | lower | snakecase }}
+  {{- if .permissions }}
   access:
-    {{- range $user := .permissions.writer }}
+    {{- with .permissions.writer }}
+    {{- range . }}
     - role: WRITER
-      userByEmail: {{ $user }}
+      userByEmail: {{ . }}
     {{- end }}
-    {{- range $user := .permissions.reader }}
+    {{- end }}
+    {{- with .permissions.reader }}
+    {{- range . }}
     - role: READER
-      userByEmail: {{ $user }}
+      userByEmail: {{ . }}
     {{- end }}
+    {{- end }}
+  {{- end }}
 ---
 {{- end }}

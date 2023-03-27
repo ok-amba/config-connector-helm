@@ -1,0 +1,71 @@
+# https://github.com/vbehar/helm3-unittest
+suite: Big Query Table
+templates:
+  - bq-table.yaml
+tests:
+  - it: Should set the resourceID to pascalcase
+    set:
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+    asserts:
+      - equal:
+          path: spec.resourceID
+          value: SomeTableName
+
+  - it: Should set the database reference to dataset name
+    set:
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+    asserts:
+      - equal:
+          path: spec.datasetRef.name
+          value: some-dataset-name
+
+  - it: Should only template view if view is defined
+    set:
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            view:
+              query: some-query
+            schema: |
+              [
+                {
+                  "mode": "NULLABLE",
+                  "name": "ColumnName01",
+                  "type": "STRING"
+                }
+              ]
+    asserts:
+      - isNotEmpty:
+          path: spec.view
+      - isEmpty:
+          path: spec.schema
+      - isEmpty:
+          path: spec.timePartitioning
+
+  - it: Should not be able to set timePartitioning if view is defined
+    set:
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            view:
+              query: some-query
+            timePartitioning:
+              field: ReadOn
+              requirePartitionFilter: false
+              type: DAY
+    asserts:
+      - isNotEmpty:
+          path: spec.view
+      - isEmpty:
+          path: spec.schema
+      - isEmpty:
+          path: spec.timePartitioning
+

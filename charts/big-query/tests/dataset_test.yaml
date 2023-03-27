@@ -1,0 +1,49 @@
+# https://github.com/vbehar/helm3-unittest
+suite: Big Query Dataset
+templates:
+  - bq-dataset.yaml
+tests:
+  - it: Should pass with nothing but name set
+    set:
+      dataSets.dataSetShortName01.name: some-dataset-name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: some-dataset-name
+      - equal:
+          path: spec.resourceID
+          value: some_dataset_name
+
+  - it: Should set the resourceID to snakecase
+    set:
+      dataSets.dataSetShortName01.name: some-dataset-name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: some-dataset-name
+      - equal:
+          path: spec.resourceID
+          value: some_dataset_name
+
+  - it: Should set READER and WRITER permissions
+    set:
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        permissions:
+          writer:
+            - writer@email.org
+          reader:
+            - reader@email.org
+    asserts:
+      - equal:
+          path: spec.access[0].role
+          value: WRITER
+      - equal:
+          path: spec.access[0].userByEmail
+          value: writer@email.org
+      - equal:
+          path: spec.access[1].role
+          value: READER
+      - equal:
+          path: spec.access[1].userByEmail
+          value: reader@email.org

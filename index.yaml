@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   big-query:
   - apiVersion: v2
+    created: "2023-03-27T14:11:20.402485658Z"
+    description: A Helm chart for creating Google Cloud Big Query resources.
+    digest: 7109bd060df6832ef3320b6099ba6efc35f5b8c194aeb7c732394b081092b00d
+    name: big-query
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/big-query-0.1.1/big-query-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     created: "2023-03-27T08:14:26.271997881Z"
     description: A Helm chart for creating Google Cloud Big Query resources.
     digest: 3bee2cef82c446c9d0a595e030f2976ab09b4fca977ebc506913496467425b57
@@ -448,4 +457,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2023-03-27T08:14:26.272189683Z"
+generated: "2023-03-27T14:11:20.402621759Z"

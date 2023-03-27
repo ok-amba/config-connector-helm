@@ -1,0 +1,69 @@
+# Default values for big-query.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# https://cloud.google.com/config-connector/docs/reference/resource-docs/bigquery/bigquerydataset
+
+global:
+  # Add labels from a parent chart to all manifests.
+  # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
+  labels: {}
+
+dataSets: {}
+  # # The "dataSetShortName01" is not used for anything other than for you to reference the object in an environment values file.
+  # # Each short name must be unique.
+  # dataSetShortName01:
+  #   # Dataset name can only include lowercase alphanumeric characters and hyphens (-).
+  #   # The dataset name will be converted to snakecase in BigQuery, eg. my-dataset-name will be my_dataset_name.
+  #   name: my-dataset-name
+  #   description: "BigQuery Dataset Sample"
+  #   permissions:
+  #     writer:
+  #       - <service-account-name>@<project-id>.iam.gserviceaccount.com
+  #     reader:
+  #       - <service-account-name>@<project-id>.iam.gserviceaccount.com
+  #   tables:
+  #     # The table name can only include lowercase alphanumeric characters and hyphens (-).
+  #     # The table name will be converted to pascalcase in BigQuery, eg. my-table-name will be MyTableName.
+  #     - name: my-table-name
+  #       description: BigQuery Sample Table
+  #       schema: |
+  #         [
+  #           {
+  #             "mode": "NULLABLE",
+  #             "name": "ColumnName01",
+  #             "type": "STRING"
+  #           },
+  #           {
+  #             "mode": "NULLABLE",
+  #             "name": "ColumnName02",
+  #             "type": "INTEGER"
+  #           },
+  #           {
+  #             "mode": "NULLABLE",
+  #             "name": "ColumnName03",
+  #             "type": "TIMESTAMP"
+  #           },
+  #           {
+  #             "mode": "NULLABLE",
+  #             "name": "ColumnName04",
+  #             "type": "NUMERIC"
+  #           },
+  #           {
+  #             "mode": "NULLABLE",
+  #             "name": "ColumnName05",
+  #             "type": "BOOLEAN"
+  #           }
+  #         ]
+  #
+  #       timePartitioning:
+  #         field: ReadOn
+  #         requirePartitionFilter: false
+  #         type: DAY
+  #
+  #     - name: my-view-name
+  #       description: BigQuery Sample View
+  #
+  #       view:
+  #         query: |
+  #           SELECT some FROM table

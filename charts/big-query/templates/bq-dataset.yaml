@@ -1,0 +1,27 @@
+{{ range .Values.dataSets }}
+apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
+kind: BigQueryDataset
+metadata:
+  name: {{ include "big-query.dataset-name" . }}
+  annotations:
+    cnrm.cloud.google.com/delete-contents-on-destroy: {{ .deleteOnDestroy | default "false" | quote }}
+  labels:
+    {{- include "big-query.labels" $ | nindent 4 }}
+    {{- with .labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  description: {{ .description }}
+  location: europe-west3
+  resourceID: {{ .name | lower | snakecase }}
+  access:
+    {{- range $user := .permissions.writer }}
+    - role: WRITER
+      userByEmail: {{ $user }}
+    {{- end }}
+    {{- range $user := .permissions.reader }}
+    - role: READER
+      userByEmail: {{ $user }}
+    {{- end }}
+---
+{{- end }}

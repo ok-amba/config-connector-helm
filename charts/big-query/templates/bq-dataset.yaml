@@ -1,10 +1,12 @@
+{{ $configConnectorID := .Values.configConnectorSaId | required "A Config Connector SA ID is required" }}
+{{ $projectID := $.Values.global.projectID | required "Google ID is required" }}
 {{ range .Values.dataSets }}
 apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
 kind: BigQueryDataset
 metadata:
   name: {{ include "big-query.dataset-name" . }}
   annotations:
-    cnrm.cloud.google.com/delete-contents-on-destroy: {{ .deleteOnDestroy | default "false" | quote }}
+    cnrm.cloud.google.com/deletion-policy: abandon
   labels:
     {{- include "big-query.labels" $ | nindent 4 }}
     {{- with .labels }}
@@ -13,21 +15,21 @@ metadata:
 spec:
   description: {{ .description }}
   location: europe-west3
-  resourceID: {{ .name | lower | snakecase }}
-  {{- if .permissions }}
+  resourceID: {{ .name | lower | camelcase }}
   access:
-    {{- with .permissions.writer }}
-    {{- range . }}
-    - role: WRITER
-      userByEmail: {{ . }}
+    - role: OWNER
+      userByEmail: {{ $configConnectorID }}
+    {{- with ((.permissions).externalWriter) }}
+    {{ include "big-query.external-writer" . | indent 4}}
     {{- end }}
+    {{- with ((.permissions).externalReader) }}
+    {{ include "big-query.external-reader" . | indent 4}}
     {{- end }}
-    {{- with .permissions.reader }}
-    {{- range . }}
-    - role: READER
-      userByEmail: {{ . }}
+    {{- with ((.permissions).writer) }}
+    {{ include "big-query.writer" (dict "users" . "projectID" $projectID) | indent 4}}
     {{- end }}
+    {{- with ((.permissions).reader) }}
+    {{ include "big-query.reader" (dict "users" . "projectID" $projectID) | indent 4}}
     {{- end }}
-  {{- end }}
 ---
 {{- end }}

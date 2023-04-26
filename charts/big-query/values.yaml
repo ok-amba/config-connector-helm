@@ -9,6 +9,16 @@ global:
   # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
+  # The Google Project ID.
+  # [Required]
+  projectID: null
+
+# The full ID of the Config Connector service account which will create the BigQuery resources.
+# This is due to a limitation on the CC BigQuery provider.
+# See https://github.com/GoogleCloudPlatform/k8s-config-connector/issues/127 for more details.
+# [Required]
+configConnectorSaId: null
+
 dataSets: {}
   # # The "dataSetShortName01" is not used for anything other than for you to reference the object in an environment values file.
   # # Each short name must be unique.
@@ -18,10 +28,19 @@ dataSets: {}
   #   name: my-dataset-name
   #   description: "BigQuery Dataset Sample"
   #   permissions:
+  #     # Below fields are used for SA's  that do not belong to the "global.projectID".
+  #     # They must end with ".iam.gserviceaccount.com" or they will not be added.
+  #     externalWriter:
+  #       - <service-account-name>@<project-id>.iam.gserviceaccount.com
+  #     externalReader:
+  #       - <service-account-name>@<project-id>.iam.gserviceaccount.com
+  #
+  #     # Below fields only takes the names of the SA. The "global.projectID" will be used to create the rest of the ID.
   #     writer:
-  #       - <service-account-name>@<project-id>.iam.gserviceaccount.com
+  #       - <service-account-name>
   #     reader:
-  #       - <service-account-name>@<project-id>.iam.gserviceaccount.com
+  #       - <service-account-name>
+  #
   #   tables:
   #     # The table name can only include lowercase alphanumeric characters and hyphens (-).
   #     # The table name will be converted to pascalcase in BigQuery, eg. my-table-name will be MyTableName.

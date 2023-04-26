@@ -5,6 +5,7 @@ kind: BigQueryTable
 metadata:
   name: {{ include "big-query.table-name" . }}
   labels:
+    dataset: {{ include "big-query.dataset-name" $dataset }}
     {{- include "big-query.labels" $ | nindent 4 }}
     {{- with .labels }}
       {{- toYaml . | nindent 4 }}

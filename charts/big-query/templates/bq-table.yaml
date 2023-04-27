@@ -4,6 +4,8 @@ apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
 kind: BigQueryTable
 metadata:
   name: {{ include "big-query.table-name" . }}
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
   labels:
     dataset: {{ include "big-query.dataset-name" $dataset }}
     {{- include "big-query.labels" $ | nindent 4 }}

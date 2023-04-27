@@ -5,6 +5,8 @@ templates:
 tests:
   - it: Should set the resourceID to pascalcase
     set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
       dataSets.dataSetShortName01:
         name: some-dataset-name
         tables:
@@ -16,6 +18,8 @@ tests:
 
   - it: Should set the database reference to dataset name
     set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
       dataSets.dataSetShortName01:
         name: some-dataset-name
         tables:
@@ -27,6 +31,8 @@ tests:
 
   - it: Should only template view if view is defined
     set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
       dataSets.dataSetShortName01:
         name: some-dataset-name
         tables:
@@ -44,13 +50,15 @@ tests:
     asserts:
       - isNotEmpty:
           path: spec.view
-      - isEmpty:
+      - isNull:
           path: spec.schema
-      - isEmpty:
+      - isNull:
           path: spec.timePartitioning
 
   - it: Should not be able to set timePartitioning if view is defined
     set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
       dataSets.dataSetShortName01:
         name: some-dataset-name
         tables:
@@ -64,8 +72,8 @@ tests:
     asserts:
       - isNotEmpty:
           path: spec.view
-      - isEmpty:
+      - isNull:
           path: spec.schema
-      - isEmpty:
+      - isNull:
           path: spec.timePartitioning
 

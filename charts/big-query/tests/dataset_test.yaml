@@ -1,10 +1,12 @@
-# https://github.com/vbehar/helm3-unittest
+# https://github.com/helm-unittest/helm-unittest 
 suite: Big Query Dataset
 templates:
   - bq-dataset.yaml
 tests:
-  - it: Should pass with nothing but name set
+  - it: Should pass with nothing but name set and required props
     set:
+      global.projectID: some-project-id
+      configConnectorSaId: some-service-account-name
       dataSets.dataSetShortName01.name: some-dataset-name
     asserts:
       - equal:
@@ -12,10 +14,16 @@ tests:
           value: some-dataset-name
       - equal:
           path: spec.resourceID
-          value: some_dataset_name
+          value: SomeDatasetName
+      - equal:
+          path: metadata.annotations
+          value:
+            cnrm.cloud.google.com/deletion-policy: abandon
 
-  - it: Should set the resourceID to snakecase
+  - it: Should set the resourceID to PascalCase
     set:
+      global.projectID: some-project-id
+      configConnectorSaId: some-service-account-name
       dataSets.dataSetShortName01.name: some-dataset-name
     asserts:
       - equal:
@@ -23,27 +31,94 @@ tests:
           value: some-dataset-name
       - equal:
           path: spec.resourceID
-          value: some_dataset_name
+          value: SomeDatasetName
 
-  - it: Should set READER and WRITER permissions
+  - it: Should set the Config Connector SA to owner on Dataset
     set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+    asserts:
+      - equal:
+          path: spec.access[0].role
+          value: OWNER
+      - equal:
+          path: spec.access[0].userByEmail
+          value: cc-service-account@some-project-id.iam.gserviceaccount.com
+
+  - it: Should set READER and WRITER permissions on service account name
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: some-service-account-name
       dataSets.dataSetShortName01:
         name: some-dataset-name
         permissions:
           writer:
-            - writer@email.org
+            - some-sa-name
           reader:
-            - reader@email.org
+            - some-sa-name
     asserts:
       - equal:
-          path: spec.access[0].role
+          path: spec.access[1].role
           value: WRITER
       - equal:
-          path: spec.access[0].userByEmail
-          value: writer@email.org
+          path: spec.access[1].userByEmail
+          value: some-sa-name@some-project-id.iam.gserviceaccount.com
       - equal:
-          path: spec.access[1].role
+          path: spec.access[2].role
           value: READER
       - equal:
+          path: spec.access[2].userByEmail
+          value: some-sa-name@some-project-id.iam.gserviceaccount.com
+
+  - it: Should set READER and WRITER permissions on external service account name
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: some-service-account-name
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        permissions:
+          externalWriter:
+            - some-sa-name@some-project-id.iam.gserviceaccount.com
+          externalReader:
+            - some-sa-name@some-project-id.iam.gserviceaccount.com
+    asserts:
+      - equal:
+          path: spec.access[1].role
+          value: WRITER
+      - equal:
           path: spec.access[1].userByEmail
-          value: reader@email.org
+          value: some-sa-name@some-project-id.iam.gserviceaccount.com
+      - equal:
+          path: spec.access[2].role
+          value: READER
+      - equal:
+          path: spec.access[2].userByEmail
+          value: some-sa-name@some-project-id.iam.gserviceaccount.com
+
+  - it: Should NOT give any of the given users access, sinces they do not meet the regexMatch
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: some-service-account-name
+      dataSets.dataSetShortName01:
+          name: some-dataset-name
+          permissions:
+            externalWriter:
+              - some-sa-name@some-different-domain.com
+              - some-name
+            externalReader:
+              - some-sa-name@some-different-domain.com
+              - some-name
+            writer:
+              - some-name@other-domain.com
+              - some-name@some-project-id.iam.gserviceaccount.com 
+            reader:
+              - some-name@other-domain.com
+              - some-name@some-project-id.iam.gserviceaccount.com 
+    asserts:
+      - contains:
+          path: spec.access
+          content:
+            role: OWNER
+            userByEmail: some-service-account-name@some-project-id.iam.gserviceaccount.com

@@ -1,0 +1,18 @@
+{{- if .Values.workloadIdentity.enabled }}
+{{- $gkeProjectID := .Values.workloadIdentity.gkeProjectID | required "A gkeProjectID is required for workloadIdentity" }}
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: {{ .Values.name }}-wl-identity
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | default "-5" | quote }}
+  labels:
+    {{- include "iam-service-account.labels" . | nindent 4 }}
+spec:
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: {{ .Values.name }}
+  member: "serviceAccount:{{ $gkeProjectID }}.svc.id.goog[{{ .Release.Namespace }}/{{ .Values.name }}]"
+  role: roles/iam.workloadIdentityUser
+{{- end }}

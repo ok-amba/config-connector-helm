@@ -43,21 +43,3 @@ spec:
 # In this example the secret will be named "iamserviceaccount-sample-key".
 keyFile:
   create: false
-
-  # Labels on the Config Connector resource.
-  labels: {}
-
-  # Annotations on the Config Connector resource.
-  annotations: {}
-  spec:
-    # Immutable. The algorithm used to generate the key, used only on create.
-    # KEY_ALG_RSA_2048 is the default algorithm. Valid values are: "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048".
-    keyAlgorithm: KEY_ALG_RSA_2048
-
-    # Immutable.
-    publicKeyType: TYPE_X509_PEM_FILE
-
-    # Immutable. A field that allows clients to upload their own public key.
-    # If set, use this public key data to create a service account key for given service account.
-    # Please note, the expected format for this field is a base64 encoded X509_PEM.
-    privateKeyType: TYPE_GOOGLE_CREDENTIALS_FILE

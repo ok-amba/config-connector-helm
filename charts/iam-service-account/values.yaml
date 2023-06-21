@@ -32,6 +32,10 @@ spec:
 # Access Management (IAM) service accounts to access Google Cloud services.
 workloadIdentity:
   enabled: false
+
+  # The Kubernetes Namespace your service account is in.
+  kubernetesNamespace: default
+
   # The ID of the Google Cloud Project that contains the Kubernetes cluster.
   gkeProjectID: some-project-id
 

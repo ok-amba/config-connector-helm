@@ -13,6 +13,6 @@ spec:
     apiVersion: iam.cnrm.cloud.google.com/v1beta1
     kind: IAMServiceAccount
     name: {{ .Values.name }}
-  member: "serviceAccount:{{ $gkeProjectID }}.svc.id.goog[{{ .Release.Namespace }}/{{ .Values.name }}]"
+  member: "serviceAccount:{{ $gkeProjectID }}.svc.id.goog[{{ .Values.workloadIdentity.kubernetesNamespace }}/{{ .Values.name }}]"
   role: roles/iam.workloadIdentityUser
 {{- end }}

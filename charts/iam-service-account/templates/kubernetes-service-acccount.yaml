@@ -1,0 +1,11 @@
+{{- if .Values.workloadIdentity.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.name }}
+  annotations:
+    iam.gke.io/gcp-service-account: {{ .Values.name }}@{{ .Values.global.projectID | required "projectID is required"}}.iam.gserviceaccount.com
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | default "-5" | quote }}
+  labels:
+    {{- include "iam-service-account.labels" . | nindent 4 }}
+{{- end }}

@@ -1,7 +1,3 @@
-# Default values for iam-service-account.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 # https://cloud.google.com/config-connector/docs/reference/resource-docs/iam/iamserviceaccount
 
 global:
@@ -9,6 +5,10 @@ global:
   # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
+  # The Google Project ID.
+  # [Required for Workload Identity]
+  projectID: null 
+ 
 # Name of the Config Connector resource.
 # The name will be the ID of the Google Service Account and must be between 6 and 30 characters.
 name: iamserviceaccount-sample
@@ -28,36 +28,20 @@ spec:
   # A text description of the service account. Must be less than or equal to 256 UTF-8 bytes.
   description: "Description of Service Account"
 
-  # Whether the service account is disabled. Defaults to false.
-  #disabled: false
+# Workload Identity allows workloads in your GKE clusters to impersonate Identity and
+# Access Management (IAM) service accounts to access Google Cloud services.
+workloadIdentity:
+  enabled: false
 
-  # The display name for the service account. Can be updated without creating a new resource.
-  displayName: Example Service Account
+  # The Kubernetes Namespace your service account is in.
+  kubernetesNamespace: default
 
-  # Immutable. Optional. The accountId of the resource. Used for creation and acquisition.
-  # When unset, the value of `metadata.name` is used as the default.
-  #resourceID: ""
+  # The ID of the Google Cloud Project that contains the Kubernetes cluster.
+  gkeProjectID: some-project-id
 
+# [ DEPRECATED ] Use workload identity!
 # If keyFile is enabled, Config Connector will create a service account JSON key file and
 # add it to the K8s namespace as a secret called "<service-account-name>-key".
 # In this example the secret will be named "iamserviceaccount-sample-key".
 keyFile:
   create: false
-
-  # Labels on the Config Connector resource.
-  labels: {}
-
-  # Annotations on the Config Connector resource.
-  annotations: {}
-  spec:
-    # Immutable. The algorithm used to generate the key, used only on create.
-    # KEY_ALG_RSA_2048 is the default algorithm. Valid values are: "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048".
-    keyAlgorithm: KEY_ALG_RSA_2048
-
-    # Immutable.
-    publicKeyType: TYPE_X509_PEM_FILE
-
-    # Immutable. A field that allows clients to upload their own public key.
-    # If set, use this public key data to create a service account key for given service account.
-    # Please note, the expected format for this field is a base64 encoded X509_PEM.
-    privateKeyType: TYPE_GOOGLE_CREDENTIALS_FILE

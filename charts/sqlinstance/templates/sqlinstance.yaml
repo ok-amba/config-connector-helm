@@ -2,24 +2,45 @@ apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLInstance
 metadata:
   name: {{ .Values.name | required "A SQL Instance resource name is required." }}
-  {{- if or (not .Values.deletionPolicyRemoveResource) (.Values.annotations) (.Values.argoSyncWave) }}
   annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | default "-5" | quote }}
     {{- with .Values.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
     {{- if not .Values.deletionPolicyRemoveResource }}
     cnrm.cloud.google.com/deletion-policy: abandon
     {{- end }}
-    {{- if .Values.argoSyncWave }}
-    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
-    {{- end }}
-  {{- end }}
   labels:
     {{- include "sqlinstance.labels" . | nindent 4 }}
-    {{- with .Values.labels }}
-      {{- toYaml . | nindent 4 }}
+    {{- range $k, $v := .Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
-  {{- with .Values.spec }}
-    {{- toYaml . | nindent 2 }}
-  {{- end }}
+  databaseVersion: POSTGRES_{{ .Values.postgresVersion }}
+  region: {{ .Values.region | default "europe-west3" }}
+  settings:
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: 8
+      enabled: true
+      location: eu
+      pointInTimeRecoveryEnabled: true
+      startTime: 01:00
+      transactionLogRetentionDays: 7
+    insightsConfig:
+      queryInsightsEnabled: true
+      recordApplicationTags: true
+      recordClientAddress: true
+    maintenanceWindow:
+      day: 7
+      hour: 02
+      updateTrack: {{ ternary "canary" "stable" .Values.enableTestConfiguration }}
+    availabilityType: {{ ternary "ZONAL" "REGIONAL" .Values.enableTestConfiguration }}
+    databaseFlags:
+    - name: cloudsql.iam_authentication
+      value: "on"
+    {{- range $name, $value := .Values.databaseFlags }}
+    - name: {{ $name }}
+      value: {{ $value | quote }}
+    {{- end }}
+    tier: {{ .Values.instanceTier }}

@@ -1,13 +1,11 @@
-# Default values for sqlinstance.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-# https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqlinstance
-
 global:
   # Add labels from a parent chart to all manifests.
   # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
+
+  # Required. The project ID is where the instance and service account gettting access both reside.
+  # This chart does not support adding a service account from a different google project than the SQL instance.
+  projectID: null
 
 ######################################################
 #                    SQL Instance                    #
@@ -18,10 +16,6 @@ name: sqlinstance-sample
 # Uncomment below line to delete the SQL Instance in Google on Kubernetes object deletion.
 #deletionPolicyRemoveResource: true
 
-# Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
-# https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
-argoSyncWave: -5
-
 # Labels on the Config Connector resource.
 # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
 labels: {}
@@ -29,69 +23,42 @@ labels: {}
 # Annotations on the Config Connector resource.
 annotations: {}
 
-spec:
-  databaseVersion: POSTGRES_14
-  region: europe-west3
-  settings:
-    backupConfiguration:
-      backupRetentionSettings:
-        retainedBackups: 8
-      enabled: true
-      location: eu
-      pointInTimeRecoveryEnabled: true
-      startTime: 01:00
-      transactionLogRetentionDays: 7
-    insightsConfig:
-      queryInsightsEnabled: true
-      recordApplicationTags: true
-      recordClientAddress: true
-    maintenanceWindow:
-      day: 7
-      hour: 02
-      updateTrack: stable
-    availabilityType: REGIONAL
-    databaseFlags:
-    - name: cloudsql.iam_authentication
-      value: "on"
-    tier: db-f1-micro
+# Below field will set the updateTrack to "canary" and the availabilityType to "ZONAL"
+# This should be enabled on all instances in the test environment.
+enableTestConfiguration: false
 
+# PostgreSQL Version
+postgresVersion: 14
+
+# SQL Instance tier, eg. db-f1-micro, db-g1-small, db-custom-1-3840.
+instanceTier: db-f1-micro
+
+# Add extra database flags on the instance. The "cloudsql.iam_authentication" flag is enabled by default.
+# See below link for a list of available flags. Remember to put values of "on" and "off" in quotes or YAML will convert it to true/false.
+# https://cloud.google.com/sql/docs/postgres/flags
+databaseFlags: {}
+  # cloudsql.enable_anon: "on"
+  # cloudsql.enable_maintenance_mode: "on"
 
 ######################################################
 #                     Databases                      #
 ######################################################
 
-# https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqldatabase
-
-# If you leave the "databases" array empty, a default database with the same name as the SQL Instance will be created, with default values.
-# If you want another database name or create multiple datebases, add them to the array below with minimum a name. Examples are provided.
+# If you leave the "databases" array empty, a default database with the same name as the SQL Instance will be created with default values.
+# If you want another database name or create multiple datebases, add them to the array below. See below examples.
 
 databases: []
   # - name: database-01
 
   # - name: database-02
-  #   deletionPolicyRemoveResource: true
-  #   annotations:
-  #     some-annotation: some-value
-  #   spec:
-  #     charset: some-other-value
-  #     collation: some-other-value
+  #   charset: UTF8
+  #   collation: en_US.UTF8
 
 
 ######################################################
-#                   Databases Users                  #
+#                    Database User                   #
 ######################################################
 
-# https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqluser
-
-# Below array hold the service accounts which should get access.
-# The SA will get the necessary roles to be able to connect using Cloud SQL Proxy and write to the DB.
-# You can how ever change the default OK amba custom role by setting the "role" property.
-serviceAccounts: []
-  # - name: my-service-account
-  #   projectId: my-google-project-id
-
-  #   # Below values are optional
-  #   role: your-google-role-here
-  #   deletionPolicyRemoveResource: true
-  #   annotations:
-  #     some-annotation: some-value
+# Add the name of the service account that will be granted access to the database,
+# Only add the name of the service account. The full ID will be generate from the "global.projectID" field.
+serviceAccount: ""

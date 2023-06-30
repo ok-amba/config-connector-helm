@@ -1,32 +1,21 @@
-{{- range $sa := .Values.serviceAccounts }}
+{{- if .Values.serviceAccount }}
+{{ $saName := .Values.serviceAccount | lower }}
+{{ $projectID := (.Values.global.projectID | required "A project ID is required")}}
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLUser
 metadata:
-  name: {{ $sa.name | lower | required "Service Account name is required" }}
-  {{- if or (not $sa.deletionPolicyRemoveResource) ($sa.annotations) ($.Values.argoSyncWave) }}
+  name: {{ .Values.serviceAccount }}
   annotations:
-    {{- with $sa.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-    {{- if not $sa.deletionPolicyRemoveResource }}
-    cnrm.cloud.google.com/deletion-policy: abandon
-    {{- end }}
-    {{- if $.Values.argoSyncWave }}
-    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
-    {{- end }}
-  {{- end }}
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | default "-5" | quote }}
   labels:
-    {{- include "sqlinstance.labels" $ | nindent 4 }}
-    {{- with $.Values.labels }}
-      {{- toYaml . | nindent 4 }}
+    {{- include "sqlinstance.labels" . | nindent 4 }}
+    {{- range $k, $v := .Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
-  {{- if ($sa.spec).host }}
-  host: {{ $sa.spec.host }}
-  {{- end }}
   type: CLOUD_IAM_SERVICE_ACCOUNT
   instanceRef:
-    name: {{ $.Values.name | lower | required "instanceRef name required" }}
-  resourceID: {{ $sa.name | lower | required "Service Account name is required" }}@{{ $sa.projectId | lower | required "A project ID is required" }}.iam
+    name: {{ .Values.name }}
+  resourceID: {{ $saName }}@{{ $projectID }}.iam
 ---
 {{- end }}

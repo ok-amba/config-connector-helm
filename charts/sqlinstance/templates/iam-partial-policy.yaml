@@ -2,7 +2,7 @@
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:
-  name: {{ $sa.name | lower | required "Service Account name is required" }}-sqlinstance-roles
+  name: sql-{{ $sa.name | lower | required "Service Account name is required" }}-{{ $.Values.name }}
   {{- if $.Values.argoSyncWave }}
   annotations:
     argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}

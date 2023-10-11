@@ -3,7 +3,7 @@
 apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
 kind: BigQueryTable
 metadata:
-  name: {{ include "big-query.table-name" . }}
+  name: {{ include "big-query.dataset-name" $dataset }}-{{ include "big-query.table-name" . }}
   annotations:
     cnrm.cloud.google.com/deletion-policy: abandon
   labels:
@@ -22,9 +22,9 @@ spec:
   {{- end }}
 
   {{- if .view }}
-  view: 
+  view:
     useLegacySql: {{ .view.useLegacySql | default false }}
-    query: | {{ .view.query | nindent 6 }} 
+    query: | {{ .view.query | nindent 6 }}
   {{- end }}
 
   {{- if and .timePartitioning (not .view) }}

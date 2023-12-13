@@ -27,12 +27,22 @@ spec:
     query: | {{ .view.query | nindent 6 }}
   {{- end }}
 
-  {{- if and .timePartitioning (not .view) }}
+  {{- if and .timePartitioning (not .view) (not .materializedView)}}
   timePartitioning: {{ .timePartitioning | toYaml | nindent 4 }}
   {{- end }}
 
-  {{- if and .schema (not .view) }}
+  {{- if and .schema (not .view) (not .materializedView) }}
   schema: | {{ .schema | nindent 4 }}
+  {{- end }}
+
+  {{- if and .materializedView (not .view) }}
+  {{- with .materializedView }}
+  materializedView:
+    allowNonIncrementalDefinition: {{ .allowNonIncrementalDefinition }}
+    enableRefresh: {{ .enableRefresh }}
+    refreshIntervalMs: {{ .refreshIntervalMs }}
+    query: | {{ .query | nindent 6 }}
+  {{- end }}
   {{- end }}
 ---
 {{- end }}

@@ -86,3 +86,13 @@ dataSets: {}
   #       view:
   #         query: |
   #           SELECT some FROM table
+  #
+  #     - name: my-materialized-view-name
+  #       description: BigQuery Sample View
+  #
+  #       materializedView:
+  #         allowNonIncrementalDefinition: false # Immutable
+  #         enableRefresh: true
+  #         refreshIntervalMs: "1800000"
+  #         query: |
+  #           SELECT some FROM table

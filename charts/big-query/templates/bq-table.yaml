@@ -4,8 +4,10 @@ apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
 kind: BigQueryTable
 metadata:
   name: {{ include "big-query.dataset-name" $dataset }}-{{ include "big-query.table-name" . }}
+  {{- if and .schema (not .view) (not .materializedView) }}
   annotations:
     cnrm.cloud.google.com/deletion-policy: abandon
+  {{- end }}
   labels:
     dataset: {{ include "big-query.dataset-name" $dataset }}
     {{- include "big-query.labels" $ | nindent 4 }}

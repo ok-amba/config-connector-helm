@@ -1,4 +1,4 @@
-# https://github.com/helm-unittest/helm-unittest 
+# https://github.com/helm-unittest/helm-unittest
 suite: Big Query Dataset
 templates:
   - bq-dataset.yaml
@@ -36,16 +36,19 @@ tests:
   - it: Should set the Config Connector SA to owner on Dataset
     set:
       global.projectID: some-project-id
-      configConnectorSaId: cc-service-account
+      configConnectorSaId: cc-service-account@some-project-id.iam.gserviceaccount.com
       dataSets.dataSetShortName01:
         name: some-dataset-name
     asserts:
-      - equal:
-          path: spec.access[0].role
-          value: OWNER
-      - equal:
-          path: spec.access[0].userByEmail
-          value: cc-service-account@some-project-id.iam.gserviceaccount.com
+      - lengthEqual:
+          path: spec.access
+          count: 1
+      - contains:
+          path: spec.access
+          count: 1
+          content:
+            role: OWNER
+            userByEmail: cc-service-account@some-project-id.iam.gserviceaccount.com
 
   - it: Should set READER and WRITER permissions on service account name
     set:
@@ -59,18 +62,27 @@ tests:
           reader:
             - some-sa-name
     asserts:
-      - equal:
-          path: spec.access[1].role
-          value: WRITER
-      - equal:
-          path: spec.access[1].userByEmail
-          value: some-sa-name@some-project-id.iam.gserviceaccount.com
-      - equal:
-          path: spec.access[2].role
-          value: READER
-      - equal:
-          path: spec.access[2].userByEmail
-          value: some-sa-name@some-project-id.iam.gserviceaccount.com
+      - lengthEqual:
+          path: spec.access
+          count: 3
+      - contains:
+          path: spec.access
+          count: 1
+          content:
+            role: OWNER
+            userByEmail: some-service-account-name
+      - contains:
+          path: spec.access
+          count: 1
+          content:
+            role: WRITER
+            userByEmail: some-sa-name@some-project-id.iam.gserviceaccount.com
+      - contains:
+          path: spec.access
+          count: 1
+          content:
+            role: READER
+            userByEmail: some-sa-name@some-project-id.iam.gserviceaccount.com
 
   - it: Should set READER and WRITER permissions on external service account name
     set:
@@ -84,23 +96,26 @@ tests:
           externalReader:
             - some-sa-name@some-project-id.iam.gserviceaccount.com
     asserts:
-      - equal:
-          path: spec.access[1].role
-          value: WRITER
-      - equal:
-          path: spec.access[1].userByEmail
-          value: some-sa-name@some-project-id.iam.gserviceaccount.com
-      - equal:
-          path: spec.access[2].role
-          value: READER
-      - equal:
-          path: spec.access[2].userByEmail
-          value: some-sa-name@some-project-id.iam.gserviceaccount.com
+      - lengthEqual:
+          path: spec.access
+          count: 3
+      - contains:
+          path: spec.access
+          count: 1
+          content:
+            role: WRITER
+            userByEmail: some-sa-name@some-project-id.iam.gserviceaccount.com
+      - contains:
+          path: spec.access
+          count: 1
+          content:
+            role: READER
+            userByEmail: some-sa-name@some-project-id.iam.gserviceaccount.com
 
-  - it: Should NOT give any of the given users access, sinces they do not meet the regexMatch
+  - it: Should NOT give any of the given users access, sinces they do not meet the regexMatch requirements
     set:
       global.projectID: some-project-id
-      configConnectorSaId: some-service-account-name
+      configConnectorSaId: some-service-account-name@some-project-id.iam.gserviceaccount.com
       dataSets.dataSetShortName01:
           name: some-dataset-name
           permissions:
@@ -112,11 +127,14 @@ tests:
               - some-name
             writer:
               - some-name@other-domain.com
-              - some-name@some-project-id.iam.gserviceaccount.com 
+              - some-name@some-project-id.iam.gserviceaccount.com
             reader:
               - some-name@other-domain.com
-              - some-name@some-project-id.iam.gserviceaccount.com 
+              - some-name@some-project-id.iam.gserviceaccount.com
     asserts:
+      - lengthEqual:
+          path: spec.access
+          count: 1
       - contains:
           path: spec.access
           content:

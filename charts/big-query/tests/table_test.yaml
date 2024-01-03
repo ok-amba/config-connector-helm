@@ -77,3 +77,123 @@ tests:
       - isNull:
           path: spec.timePartitioning
 
+  - it: Should add the abandon annotation on tables/schemas
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            schema: |
+              [
+                {
+                  "mode": "NULLABLE",
+                  "name": "ColumnName01",
+                  "type": "STRING"
+                }
+              ]
+    asserts:
+      - equal:
+          path: metadata.annotations["cnrm.cloud.google.com/deletion-policy"]
+          value: abandon
+
+  - it: Should NOT add the abandon annotation on materializedView
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            materializedView:
+              query: some-query
+    asserts:
+      - isNull:
+          path: metadata.annotations["cnrm.cloud.google.com/deletion-policy"]
+
+  - it: Should NOT add the abandon annotation on views
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            view:
+              query: some-query
+    asserts:
+      - isNull:
+          path: metadata.annotations["cnrm.cloud.google.com/deletion-policy"]
+
+  - it: materializedView should take precedence over shema + timePartitioning
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            materializedView:
+              query: some-query
+            schema: |
+              [
+                {
+                  "mode": "NULLABLE",
+                  "name": "ColumnName01",
+                  "type": "STRING"
+                }
+              ]
+            timePartitioning:
+              field: ReadOn
+              requirePartitionFilter: false
+              type: DAY
+    asserts:
+      - isNull:
+          path: spec.schema
+      - isNull:
+          path: spec.timePartitioning
+
+  - it: view should take precedence over shema + timePartitioning
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            view:
+              query: some-query
+            schema: |
+              [
+                {
+                  "mode": "NULLABLE",
+                  "name": "ColumnName01",
+                  "type": "STRING"
+                }
+              ]
+            timePartitioning:
+              field: ReadOn
+              requirePartitionFilter: false
+              type: DAY
+    asserts:
+      - isNull:
+          path: spec.schema
+      - isNull:
+          path: spec.timePartitioning
+
+  - it: view should take precedence over materializedView
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            materializedView:
+              query: some-query
+            view:
+              query: some-query
+    asserts:
+      - isNull:
+          path: spec.materializedView

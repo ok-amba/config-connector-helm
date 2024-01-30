@@ -17,6 +17,9 @@ metadata:
 spec:
   description: {{ .description | quote }}
   resourceID: {{ .name | camelcase }}
+  {{- if .maxStaleness }}
+  maxStaleness: {{ .maxStaleness | quote }}
+  {{- end }}
   datasetRef:
     name: {{ include "big-query.dataset-name" $dataset }}
   {{- if .externalDataConfiguration }}

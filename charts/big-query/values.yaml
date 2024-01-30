@@ -46,6 +46,7 @@ dataSets: {}
   #     # The table name will be converted to pascalcase in BigQuery, eg. my-table-name will be MyTableName.
   #     - name: my-table-name
   #       description: BigQuery Sample Table
+  #       maxStaleness: some staleness string
   #       schema: |
   #         [
   #           {

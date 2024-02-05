@@ -9,6 +9,9 @@ global:
   # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
+  # The Google Project ID.
+  projectID: null
+
 ######################################################
 #                    SQL Instance                    #
 ######################################################
@@ -29,38 +32,36 @@ labels: {}
 # Annotations on the Config Connector resource.
 annotations: {}
 
-spec:
-  databaseVersion: POSTGRES_14
-  region: europe-west3
-  settings:
-    backupConfiguration:
-      backupRetentionSettings:
-        retainedBackups: 8
-      enabled: true
-      location: eu
-      pointInTimeRecoveryEnabled: true
-      startTime: 01:00
-      transactionLogRetentionDays: 7
-    insightsConfig:
-      queryInsightsEnabled: true
-      recordApplicationTags: true
-      recordClientAddress: true
-    maintenanceWindow:
-      day: 7
-      hour: 02
-      updateTrack: stable
-    availabilityType: REGIONAL
-    databaseFlags:
-    - name: cloudsql.iam_authentication
-      value: "on"
-    tier: db-f1-micro
+databaseVersion: POSTGRES_15
+tier: db-f1-micro
 
+availabilityType: REGIONAL
+backupConfiguration:
+  backupRetentionSettings:
+    retainedBackups: 8
+  enabled: true
+  pointInTimeRecoveryEnabled: true
+  startTime: 01:00
+  transactionLogRetentionDays: 7
+
+insightsConfig:
+  queryInsightsEnabled: true
+  recordApplicationTags: true
+  recordClientAddress: true
+
+maintenanceWindow:
+  day: 7
+  hour: 02
+  updateTrack: stable
+
+# NB: Some database flags will force a reboot of the Instance.
+# https://cloud.google.com/sql/docs/postgres/flags
+databaseFlags: []
+  # cloudsql.logical_decoding: "on"
 
 ######################################################
 #                     Databases                      #
 ######################################################
-
-# https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqldatabase
 
 # If you leave the "databases" array empty, a default database with the same name as the SQL Instance will be created, with default values.
 # If you want another database name or create multiple datebases, add them to the array below with minimum a name. Examples are provided.
@@ -88,10 +89,8 @@ databases: []
 # You can how ever change the default OK amba custom role by setting the "role" property.
 serviceAccounts: []
   # - name: my-service-account
-  #   projectId: my-google-project-id
-
+  #
   #   # Below values are optional
-  #   role: your-google-role-here
   #   deletionPolicyRemoveResource: true
   #   annotations:
   #     some-annotation: some-value

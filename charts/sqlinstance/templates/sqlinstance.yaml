@@ -24,6 +24,42 @@ metadata:
     {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
-  {{- with .Values.spec }}
-    {{- toYaml . | nindent 2 }}
-  {{- end }}
+  databaseVersion: {{ .Values.databaseVersion }}
+  region: europe-west3
+  settings:
+    availabilityType: REGIONAL
+    tier: {{ include "sqlinstance.validate-tier" $ }}
+
+    {{- with .Values.backupConfiguration }}
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: {{ .backupRetentionSettings.retainedBackups}}
+      enabled: {{ .enabled }}
+      location: eu
+      pointInTimeRecoveryEnabled: {{ .pointInTimeRecoveryEnabled }}
+      startTime: {{ .startTime }}
+      transactionLogRetentionDays: {{ .transactionLogRetentionDays }}
+    {{- end }}
+
+    {{- with .Values.insightsConfig }}
+    insightsConfig:
+      queryInsightsEnabled: {{ .queryInsightsEnabled }}
+      recordApplicationTags: {{ .recordApplicationTags }}
+      recordClientAddress: {{ .recordClientAddress }}
+    {{- end }}
+
+    {{- with .Values.maintenanceWindow }}
+    maintenanceWindow:
+      day: {{ .day }}
+      hour: {{ .hour }}
+      updateTrack: {{ .updateTrack }}
+    {{- end }}
+    databaseFlags:
+      - name: cloudsql.iam_authentication
+        value: "on"
+      - name: work_mem
+        value: {{ include "sqlinstance.work-mem" $ }}
+      {{- range $name, $value := .Values.databaseFlags }}
+      - name: {{ $name }}
+        value: {{ $value | quote }}
+      {{- end }}

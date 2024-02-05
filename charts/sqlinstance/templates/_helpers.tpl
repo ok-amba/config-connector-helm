@@ -42,3 +42,19 @@ chart-version: {{ .Chart.Version | replace "." "-" }}
 {{- end -}}
 {{ $work_mem | quote }}
 {{- end -}}
+
+##########################################################
+#                      Validate Tier                     #
+##########################################################
+# This function validates that the MiB of the custom tier
+# selected is multiple of 256. Micro and Small tier will
+# not be evaluated.
+{{- define "sqlinstance.validate-tier" -}}
+{{- if and (ne .Values.tier "db-f1-micro") (ne .Values.tier "db-g1-small") }}
+  {{- $instance_mem := regexFind "\\d{4,}" .Values.tier | int }}
+  {{- if mod $instance_mem 256 }}
+  {{- fail (printf "the total memory [%dMiB] must be a multiple of 256 MiB. " $instance_mem) -}}
+  {{- end -}}
+{{- end -}}
+{{ .Values.tier }}
+{{- end -}}

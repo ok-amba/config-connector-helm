@@ -1,31 +1,26 @@
 {{ range $sa := .Values.serviceAccounts }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
-kind: IAMPartialPolicy
+kind: IAMPolicyMember
 metadata:
-  name: sql-{{ $sa.name | lower | required "Service Account name is required" }}-{{ $.Values.name }}
+  name: sql-{{ $sa.name }}-{{ $.Values.name }}
   {{- if $.Values.argoSyncWave }}
   annotations:
     argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" $ | nindent 4 }}
-    {{- with $.Values.labels }}
-      {{- toYaml . | nindent 4 }}
+    {{- range $k, $v := $.Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
   resourceRef:
     apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
     kind: Project
-    external: projects/{{ $sa.projectId | lower | required "A project ID is required" }}
-  bindings:
-    {{- if $sa.role }}
-    - role: {{ $sa.role }}
-    {{- else }}
-    - role: organizations/909834982171/roles/cloudsql.serviceaccount.access
-    {{- end }}
-      members:
-        - memberFrom:
-            serviceAccountRef:
-              name: {{ $sa.name | lower | required "Service Account name is required" }}
+    external: "projects/{{ $.Values.global.projectID }}"
+  role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+  memberFrom:
+    serviceAccountRef:
+      name: {{ $sa.name }}
 ---
 {{- end }}
+

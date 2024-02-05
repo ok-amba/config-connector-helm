@@ -35,7 +35,10 @@ annotations: {}
 databaseVersion: POSTGRES_15
 tier: db-f1-micro
 
+# Possible values are REGIONAL for high availability or ZONAL for a single zone instance.
+# Recommendation id to use REGIONAL for production use and ZONAL for test.
 availabilityType: REGIONAL
+
 backupConfiguration:
   backupRetentionSettings:
     retainedBackups: 8

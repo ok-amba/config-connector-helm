@@ -2,6 +2,8 @@
 {{- fail (printf "you have not given your sqlinstance a proper name. [%s] " .Values.name) -}}
 {{- end -}}
 
+{{- include "sqlinstance.validate-availability-type" $ }}
+
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLInstance
 metadata:
@@ -27,7 +29,7 @@ spec:
   databaseVersion: {{ .Values.databaseVersion }}
   region: europe-west3
   settings:
-    availabilityType: REGIONAL
+    availabilityType: {{ .Values.availabilityType }}
     tier: {{ include "sqlinstance.validate-tier" $ }}
 
     {{- with .Values.backupConfiguration }}

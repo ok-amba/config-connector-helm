@@ -1,8 +1,9 @@
 {{- range $sa := .Values.serviceAccounts }}
+{{ $name := $sa.name | lower | required "Service Account name is required" }}
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLUser
 metadata:
-  name: {{ $sa.name | lower | required "Service Account name is required" }}-{{ $.Values.name }}
+  name: {{ $name }}-{{ $.Values.name }}
   {{- if or (not $sa.deletionPolicyRemoveResource) ($sa.annotations) ($.Values.argoSyncWave) }}
   annotations:
     {{- with $sa.annotations }}
@@ -21,12 +22,9 @@ metadata:
     {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
-  {{- if ($sa.spec).host }}
-  host: {{ $sa.spec.host }}
-  {{- end }}
   type: CLOUD_IAM_SERVICE_ACCOUNT
   instanceRef:
-    name: {{ $.Values.name | lower | required "instanceRef name required" }}
-  resourceID: {{ $sa.name | lower | required "Service Account name is required" }}@{{ $sa.projectId | lower | required "A project ID is required" }}.iam
+    name: {{ $.Values.name }}
+  resourceID: {{ $name  }}@{{ $.Values.global.projectID | required "A project ID is required" }}.iam
 ---
 {{- end }}

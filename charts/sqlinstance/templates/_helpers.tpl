@@ -58,3 +58,22 @@ chart-version: {{ .Chart.Version | replace "." "-" }}
 {{- end -}}
 {{ .Values.tier }}
 {{- end -}}
+
+##########################################################
+#              Validate Availability Setting             #
+##########################################################
+# Validates that .availabilityType is either REGIONAL or
+# ZONAL. Also validates that .backupConfiguration.enabled
+# and .backupConfiguration.pointInTimeRecoveryEnabled
+# is true if .availabilityType is REGIONAL.
+{{- define "sqlinstance.validate-availability-type" -}}
+{{- if and (ne .Values.availabilityType "REGIONAL") (ne .Values.availabilityType "ZONAL")}}
+  {{- fail (printf "'.availabilityType' must be either REGIONAL or ZONAL") -}}
+{{- end -}}
+
+{{- if eq .Values.availabilityType "REGIONAL" }}
+  {{- if or (not .Values.backupConfiguration.enabled) (not .Values.backupConfiguration.pointInTimeRecoveryEnabled) }}
+    {{- fail (printf "if '.availabilityType' is REGIONAL, then '.backupConfiguration.enabled' and '.backupConfiguration.pointInTimeRecoveryEnabled' must be true.") -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}

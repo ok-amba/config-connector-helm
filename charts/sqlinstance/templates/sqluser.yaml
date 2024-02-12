@@ -1,21 +1,13 @@
-{{- range $sa := .Values.serviceAccounts }}
-{{ $name := $sa.name | lower | required "Service Account name is required" }}
+{{- if .Values.serviceAccountName }}
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLUser
 metadata:
-  name: {{ $name }}-{{ $.Values.name }}
-  {{- if or (not $sa.deletionPolicyRemoveResource) ($sa.annotations) ($.Values.argoSyncWave) }}
+  name: {{ .Values.serviceAccountName }}
   annotations:
-    {{- with $sa.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-    {{- if not $sa.deletionPolicyRemoveResource }}
     cnrm.cloud.google.com/deletion-policy: abandon
+    {{- if .Values.argoSyncWave }}
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
     {{- end }}
-    {{- if $.Values.argoSyncWave }}
-    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
-    {{- end }}
-  {{- end }}
   labels:
     {{- include "sqlinstance.labels" $ | nindent 4 }}
     {{- range $k, $v := $.Values.labels }}
@@ -24,7 +16,7 @@ metadata:
 spec:
   type: CLOUD_IAM_SERVICE_ACCOUNT
   instanceRef:
-    name: {{ $.Values.name }}
-  resourceID: {{ $name  }}@{{ $.Values.global.projectID | required "A project ID is required" }}.iam
+    name: {{ .Values.name }}
+  resourceID: {{ .Values.serviceAccountName }}@{{ .Values.global.projectID | required "A project ID is required" }}.iam
 ---
 {{- end }}

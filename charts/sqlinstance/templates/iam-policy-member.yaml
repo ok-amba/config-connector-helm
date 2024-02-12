@@ -1,11 +1,11 @@
-{{ range $sa := .Values.serviceAccounts }}
+{{- if .Values.serviceAccountName }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPolicyMember
 metadata:
-  name: sql-{{ $sa.name }}-{{ $.Values.name }}
-  {{- if $.Values.argoSyncWave }}
+  name: sqluser-{{ .Values.serviceAccountName }}
+  {{- if .Values.argoSyncWave }}
   annotations:
-    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
   {{- end }}
   labels:
     {{- include "sqlinstance.labels" $ | nindent 4 }}
@@ -16,11 +16,11 @@ spec:
   resourceRef:
     apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
     kind: Project
-    external: "projects/{{ $.Values.global.projectID }}"
+    external: "projects/{{ .Values.global.projectID }}"
   role: organizations/909834982171/roles/cloudsql.serviceaccount.access
   memberFrom:
     serviceAccountRef:
-      name: {{ $sa.name }}
+      name: {{ .Values.serviceAccountName }}
 ---
 {{- end }}
 

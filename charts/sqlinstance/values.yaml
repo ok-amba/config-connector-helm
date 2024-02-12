@@ -35,6 +35,10 @@ annotations: {}
 databaseVersion: POSTGRES_15
 tier: db-f1-micro
 
+# The name of the service account that gets access to the SQL Instance.
+# This referes to the id of the SA without the "@<projectid>.iam.gserviceaccount.com"
+serviceAccountName: null
+
 # Possible values are REGIONAL for high availability or ZONAL for a single zone instance.
 # Recommendation id to use REGIONAL for production use and ZONAL for test.
 availabilityType: REGIONAL
@@ -79,21 +83,3 @@ databases: []
   #   spec:
   #     charset: some-other-value
   #     collation: some-other-value
-
-
-######################################################
-#                   Databases Users                  #
-######################################################
-
-# https://cloud.google.com/config-connector/docs/reference/resource-docs/sql/sqluser
-
-# Below array hold the service accounts which should get access.
-# The SA will get the necessary roles to be able to connect using Cloud SQL Proxy and write to the DB.
-# You can how ever change the default OK amba custom role by setting the "role" property.
-serviceAccounts: []
-  # - name: my-service-account
-  #
-  #   # Below values are optional
-  #   deletionPolicyRemoveResource: true
-  #   annotations:
-  #     some-annotation: some-value

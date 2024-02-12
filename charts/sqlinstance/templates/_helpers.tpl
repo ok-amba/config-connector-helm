@@ -2,6 +2,7 @@
 app: {{ .Release.Name }}
 chart-name: {{ .Chart.Name }}
 chart-version: {{ .Chart.Version | replace "." "-" }}
+sqlinstance: {{ .Values.name }}
 {{- range $k, $v := .Values.global.labels }}
 {{ printf "%s: %s" $k ($v | quote) }}
 {{- end -}}

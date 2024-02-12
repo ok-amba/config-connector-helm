@@ -367,15 +367,6 @@ entries:
     version: 0.0.1
   sqlinstance:
   - apiVersion: v2
-    created: "2024-02-07T08:21:52.35071324Z"
-    description: A Helm chart for creating Google Cloud SQL Instance.
-    digest: affe2af10a14f91a860736a8f2d0eebb8891c8e14f3977d2900faeebf71a419d
-    name: sqlinstance
-    type: application
-    urls:
-    - https://github.com/ok-amba/config-connector-helm/releases/download/sqlinstance-3.0.0/sqlinstance-3.0.0.tgz
-    version: 3.0.0
-  - apiVersion: v2
     created: "2024-02-05T13:28:41.2105668Z"
     description: A Helm chart for creating Google Cloud SQL Instance.
     digest: 256de95f555d25ab7bc67d9388ec7e7b7cc7425e0e43045a1e3e7acab6de9201

@@ -1,6 +1,7 @@
 ############################################################
 #                PubSub IAM Partial Policy                 #
 ############################################################
+{{- required ".global.projectID is required." .Values.global.projectID }}
 
 {{- range $topic := .Values.topics  }}
 {{- if or $topic.publishers $topic.isDeadletterTopic $.Values.globalPublishers }}
@@ -32,11 +33,23 @@ spec:
     - role: roles/pubsub.publisher
       members:
         {{- if $topic.isDeadletterTopic }}
-        - member: "serviceAccount:service-{{ $.Values.projectNumber }}@gcp-sa-pubsub.iam.gserviceaccount.com"
-        {{- else }}
+          {{- $projectNumber := $.Values.global.projectNumber | int64 }}
+          {{- if eq $projectNumber 0 }}
+          {{- fail (printf ".global.projectNumber is not set or is invalid.") -}}
+          {{- end }}
+        - member: "serviceAccount:service-{{ $projectNumber }}@gcp-sa-pubsub.iam.gserviceaccount.com"
+        {{- else -}}
+
+        {{/* Below logic merges the internal globalPublishers and the publishers on a topic*/}}
         {{- $publishers := concat  ($topic.publishers | default list) $.Values.globalPublishers | uniq }}
-        {{- range $sa := $publishers  }}
-        - member:  "serviceAccount:{{ $sa }}"
+        {{- range $sa := $publishers }}
+        - member: "serviceAccount:{{ $sa }}@{{ $.Values.global.projectID }}.iam.gserviceaccount.com"
+        {{- end -}}
+
+        {{/* Below logic merges the externalGlobalPublishers and the externalPublishers on a topic*/}}
+        {{- $externalPublishers := concat  ($topic.externalPublishers | default list) $.Values.externalGlobalPublishers | uniq }}
+        {{- range $sa := $externalPublishers }}
+        - member: "serviceAccount:{{ $sa }}"
         {{- end }}
         {{- end }}
 
@@ -73,12 +86,24 @@ spec:
   bindings:
     - role: roles/pubsub.subscriber
       members:
+        {{- if $sub.spec.deadLetterPolicy }}
+          {{- $projectNumber := $.Values.global.projectNumber | int64 }}
+          {{- if eq $projectNumber 0 }}
+          {{- fail (printf ".global.projectNumber is not set or is invalid.") -}}
+          {{- end }}
+        - member:  "serviceAccount:service-{{ $projectNumber }}@gcp-sa-pubsub.iam.gserviceaccount.com"
+        {{- end -}}
+
+        {{/* Below logic merges the internal globalSubscribers and the subscribers on a subscription */}}
         {{- $subscribers := concat  ($sub.subscribers | default list) $.Values.globalSubscribers | uniq }}
         {{- range $sa := $subscribers }}
+        - member:  "serviceAccount:{{ $sa }}@{{ $.Values.global.projectID }}.iam.gserviceaccount.com"
+        {{- end -}}
+
+        {{/* Below logic merges the externalGlobalSubscribers and the externalSubscribers on a subscription */}}
+        {{- $externalSubscribers := concat  ($sub.externalSubscribers | default list) $.Values.externalGlobalSubscribers | uniq }}
+        {{- range $sa := $externalSubscribers }}
         - member:  "serviceAccount:{{ $sa }}"
-        {{- end }}
-        {{- if $sub.spec.deadLetterPolicy }}
-        - member:  "serviceAccount:service-{{ $.Values.projectNumber }}@gcp-sa-pubsub.iam.gserviceaccount.com"
         {{- end }}
 ---
 {{- end }}

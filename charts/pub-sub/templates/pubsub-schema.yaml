@@ -11,6 +11,6 @@ spec:
   type: {{ $schema.type }}
   definition: | {{ $schema.definition | nindent 4 }}
   projectRef:
-    external: {{ $.Values.projectID }}
+    external: {{ $.Values.global.projectID }}
 ---
 {{- end }}

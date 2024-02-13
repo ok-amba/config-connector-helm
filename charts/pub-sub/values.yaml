@@ -9,17 +9,17 @@ global:
   # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
+  # The Google Project ID.
+  # [Required]
+  projectID: null
+
+  # Google project number, not the ID. This is used to give the default pubsub service account
+  # access to deadletter topics. Get a list with the "gcloud projects list" command.
+  projectNumber: null
+
 # Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
 # https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
 argoSyncWave: -5
-
-# Google project ID, this property is only needed if you are creating Topic Schemas.
-# This should be set in each environment values file.
-projectID: set-in-environment-values-file
-
-# Google project number, not the ID. This is used to give the default pubsub service account
-# access to deadletter topics. Get a list with the "gcloud projects list" command.
-projectNumber: "123456789"
 
 # Below labels and annotations will be set on all resources.
 annotations: {}

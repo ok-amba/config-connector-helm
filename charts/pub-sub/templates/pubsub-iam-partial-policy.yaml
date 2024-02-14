@@ -10,15 +10,11 @@ apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:
   name: "pub-role-{{ $topic.name }}"
-  {{- if or ($.Values.annotations) ($.Values.argoSyncWave) }}
   annotations:
-    {{- with $.Values.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-    {{- if $.Values.argoSyncWave }}
     argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
+    {{- with $.Values.annotations }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- end }}
   labels:
     {{- include "pubsub.labels" $ | nindent 4 }}
     {{- range $k, $v := $.Values.labels }}
@@ -64,15 +60,11 @@ apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:
   name: "sub-role-{{ $sub.name }}"
-  {{- if or ($.Values.annotations) ($.Values.argoSyncWave) }}
   annotations:
-    {{- with $.Values.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-    {{- if $.Values.argoSyncWave }}
     argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
+    {{- with $.Values.annotations }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- end }}
   labels:
     {{- include "pubsub.labels" $ | nindent 4 }}
     {{- range $k, $v := $.Values.labels }}

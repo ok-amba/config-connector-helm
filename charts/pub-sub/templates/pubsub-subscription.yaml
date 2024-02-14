@@ -12,19 +12,15 @@ apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
 kind: PubSubSubscription
 metadata:
   name: {{ $sub.name }}
-  {{- if or ($.Values.annotations) ($.Values.argoSyncWave) }}
   annotations:
-    {{- with $.Values.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-    {{- if $.Values.argoSyncWave }}
     argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
+    {{- with $.Values.annotations }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- end }}
   labels:
     {{- include "pubsub.labels" $ | nindent 4 }}
-    {{- with $.Values.labels }}
-      {{- toYaml . | nindent 4 }}
+    {{- range $k, $v := $.Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
 {{- deepCopy $.Values.globalSubscriptionSpecs | merge $sub.spec | toYaml | nindent 2 }}

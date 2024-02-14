@@ -9,17 +9,17 @@ global:
   # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
   labels: {}
 
+  # The Google Project ID.
+  # [Required]
+  projectID: null
+
+  # Google project number, not the ID. This is used to give the default pubsub service account
+  # access to deadletter topics. Get a list with the "gcloud projects list" command.
+  projectNumber: null
+
 # Below property sets a ArgoCD Sync Wave annotation on all resources. Set it to "false" to disable it.
 # https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
 argoSyncWave: -5
-
-# Google project ID, this property is only needed if you are creating Topic Schemas.
-# This should be set in each environment values file.
-projectID: set-in-environment-values-file
-
-# Google project number, not the ID. This is used to give the default pubsub service account
-# access to deadletter topics. Get a list with the "gcloud projects list" command.
-projectNumber: "123456789"
 
 # Below labels and annotations will be set on all resources.
 annotations: {}
@@ -33,26 +33,36 @@ labels: {}
 
 # Global publishers will get the publisher role on all topics in this chart, except deadletter topics.
 # The list will be merged with the publishers set on each specific topic.
+
+# A list of service accounts names without the "@<projectid>.iam.gserviceaccount.com" belonging to your Google project.
 globalPublishers: []
-  # - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
+  # - <service-account>
+
+# A list of service accounts using the full ID. Used for services accounts outside your Google project.
+externalGlobalPublishers: []
+  # - <service-account-name>@<project-id>.iam.gserviceaccount.com
 
 topics: {}
   # # The "topicShortName01" is not used for anything other than for you to reference in an environment values file.
   # # Each short name must be unique.
   # topicShortName01:
   #   name: my-topic-name-01
-
+  #
   #   # Set below property to true to create the necessary policy bindings for a deadletter topic.
   #   # (The default pubsub service account will get publisher role)
   #   isDeadletterTopic: false
-
+  #
   #   # When enabled, retains messages on the Topic for up to 31 days after they get acknowledged. This feature is not free.
   #   # Cannot be more than 31 days or less than 10 minutes. Value is en seconds and ends with "s" eg. "600s".
   #   messageRetentionDuration: null
-
-  #   # A list of full service accounts ID's to get the publisher role on this topic.
-  #   publishers:
-  #     - <some-other-service-account-name>@<my-project-id>.iam.gserviceaccount.com
+  #
+  #   # A list of service accounts names without the "@<projectid>.iam.gserviceaccount.com" belonging to your Google project.
+  #   publishers: []
+  #     # - <service-account>
+  #
+  #   # A list of service accounts using the full ID. Used for services accounts outside your Google project.
+  #   externalPublishers: []
+  #     # - <service-account>@<project-id>.iam.gserviceaccount.com
 
   # # Below example is a minumum configuration of a topic. No deadletter topic or no messageRetentionDuration.
   # topicShortName02:
@@ -75,7 +85,11 @@ topics: {}
 
 # Below list of service account ID's will be given the subscriber role on all subscriptions.
 globalSubscribers: []
-  # - <service-account-name>@<my-project-id>.iam.gserviceaccount.com
+  # - <service-account>
+
+# Below list of service account ID's will be given the subscriber role on all subscriptions.
+externalGlobalSubscribers: []
+  # - <service-account-name>@<project-id>.iam.gserviceaccount.com
 
 # Below specs will be merged into all subscriptions specs.
 # They can be overwritten on each subscription if pleased.
@@ -89,11 +103,15 @@ subscriptions: {}
   # # Each short name must be unique.
   # subscriptionShortName01:
   #   name: my-sub-name-01
-
+  #
   #   # A list of full service accounts ID's to get the subscriber role on this subscription.
-  #   subscribers:
-  #     - <some-other-service-account-name>@<my-project-id>.iam.gserviceaccount.com
-
+  #   subscribers: []
+  #     # - <service-account>
+  #
+  #   # A list of full service accounts ID's to get the subscriber role on this subscription.
+  #   externalSubscribers: []
+  #     # - <service-account-name>@<project-id>.iam.gserviceaccount.com
+  #
   #   # Below spec block supports all values from the documentation.
   #   # https://cloud.google.com/config-connector/docs/reference/resource-docs/pubsub/pubsubsubscription#spec
   #   spec:

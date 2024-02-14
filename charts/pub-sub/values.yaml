@@ -36,11 +36,11 @@ labels: {}
 
 # A list of service accounts names without the "@<projectid>.iam.gserviceaccount.com" belonging to your Google project.
 globalPublishers: []
-  # - global-user
+  # - <service-account>
 
 # A list of service accounts using the full ID. Used for services accounts outside your Google project.
 externalGlobalPublishers: []
-  # - external-global@some-other-project.iam.gserviceaccount.com
+  # - <service-account-name>@<project-id>.iam.gserviceaccount.com
 
 topics: {}
   # # The "topicShortName01" is not used for anything other than for you to reference in an environment values file.

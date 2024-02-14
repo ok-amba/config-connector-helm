@@ -23,8 +23,8 @@ metadata:
   {{- end }}
   labels:
     {{- include "pubsub.labels" $ | nindent 4 }}
-    {{- with $.Values.labels }}
-      {{- toYaml . | nindent 4 }}
+    {{- range $k, $v := $.Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 {{- with $topic }}
 {{- if or .messageRetentionDuration .schemaNameRef }}

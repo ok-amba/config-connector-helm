@@ -1,17 +1,18 @@
-# Policy for granting 
+# Policy for granting
 {{- if or .Values.serviceAccounts .Values.makeAllFilesInThisBucketPublic }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:
   name: {{ .Values.name }}-roles
-  {{- if $.Values.argoSyncWave }}
   annotations:
     argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
-  {{- end }}
+    {{- with .Values.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     {{- include "storagebucket.labels" $ | nindent 4 }}
-    {{- with $.Values.labels }}
-    {{- toYaml . | nindent 4 }}
+    {{- range $k, $v := $.Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
   resourceRef:
@@ -22,7 +23,7 @@ spec:
     {{- if .Values.makeAllFilesInThisBucketPublic }}
     - role: roles/storage.objectViewer
       members:
-        - member: allUsers 
+        - member: allUsers
     {{- end }}
     {{- range $sa := .Values.serviceAccounts }}
     - role: {{ $sa.role }}

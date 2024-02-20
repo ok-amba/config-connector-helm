@@ -1,6 +1,6 @@
 {{- define "sqlinstance.labels" -}}
 app: {{ .Release.Name }}
-chart-name: {{ .Chart.Name }}
+chart-name: "sqlinstance"
 chart-version: {{ .Chart.Version | replace "." "-" }}
 sqlinstance: {{ .Values.name }}
 {{- range $k, $v := .Values.global.labels }}

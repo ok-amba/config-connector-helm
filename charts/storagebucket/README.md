@@ -20,7 +20,6 @@ spec:
 
 serviceAccounts:
   - name: my-service-account-name
-    projectId: my-google-project-id
     role: roles/storage.objectViewer
 ```
 
@@ -38,7 +37,7 @@ spec:
   versioning:
     enabled: true
   lifecycleRule:
-    # Will keep 5 versions of an object incl. the live object. 
+    # Will keep 5 versions of an object incl. the live object.
     # Older versions will be deleted.
     - action:
         type: Delete

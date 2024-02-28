@@ -1,7 +1,7 @@
 ############################################################
 #                PubSub IAM Partial Policy                 #
 ############################################################
-{{- required ".global.projectID is required." .Values.global.projectID }}
+{{- $_ := required ".global.projectID is required." .Values.global.projectID }}
 
 {{- range $topic := .Values.topics  }}
 {{- if or $topic.publishers $topic.isDeadletterTopic $.Values.globalPublishers }}

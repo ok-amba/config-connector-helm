@@ -54,7 +54,7 @@ spec:
 
 
 {{- range $sub := .Values.subscriptions }}
-{{- if or $sub.subscribers $sub.spec.deadLetterPolicy $.Values.globalSubscribers }}
+{{- if or $sub.spec.deadLetterPolicy $sub.subscribers $sub.externalSubscribers $.Values.globalSubscribers $.Values.externalGlobalSubscribers }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
 metadata:

@@ -4,7 +4,7 @@
 {{- $_ := required ".global.projectID is required." .Values.global.projectID }}
 
 {{- range $topic := .Values.topics  }}
-{{- if or $topic.publishers $topic.isDeadletterTopic $.Values.globalPublishers }}
+{{- if or $topic.isDeadletterTopic $topic.publishers $topic.externalPublishers $.Values.globalPublishers $.Values.externalGlobalPublishers }}
 
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPartialPolicy
@@ -34,7 +34,7 @@ spec:
           {{- fail (printf ".global.projectNumber is not set or is invalid.") -}}
           {{- end }}
         - member: "serviceAccount:service-{{ $projectNumber }}@gcp-sa-pubsub.iam.gserviceaccount.com"
-        {{- else -}}
+        {{- end -}}
 
         {{/* Below logic merges the internal globalPublishers and the publishers on a topic*/}}
         {{- $publishers := concat  ($topic.publishers | default list) $.Values.globalPublishers | uniq }}
@@ -46,7 +46,6 @@ spec:
         {{- $externalPublishers := concat  ($topic.externalPublishers | default list) $.Values.externalGlobalPublishers | uniq }}
         {{- range $sa := $externalPublishers }}
         - member: "serviceAccount:{{ $sa }}"
-        {{- end }}
         {{- end }}
 
 ---

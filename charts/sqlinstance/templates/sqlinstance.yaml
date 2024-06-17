@@ -16,6 +16,7 @@ metadata:
     {{- if not .Values.deletionPolicyRemoveResource }}
     cnrm.cloud.google.com/deletion-policy: abandon
     {{- end }}
+    cnrm.cloud.google.com/project-id: {{ .Values.global.projectID }}
     {{- if .Values.argoSyncWave }}
     argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
     {{- end }}

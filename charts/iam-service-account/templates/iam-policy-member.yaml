@@ -16,3 +16,21 @@ spec:
   member: "serviceAccount:{{ $gkeProjectID }}.svc.id.goog[{{ .Values.workloadIdentity.kubernetesNamespace }}/{{ .Values.name }}]"
   role: roles/iam.workloadIdentityUser
 {{- end }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: {{ .Values.name }}-secret-manager-viewer
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | default "-5" | quote }}
+  labels:
+    {{- include "iam-service-account.labels" . | nindent 4 }}
+spec:
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    external: "projects/{{ .Values.global.projectID | required "global.projectID required" }}"
+  memberFrom:
+    serviceAccountRef:
+      name: {{ .Values.name }}
+  role: roles/secretmanager.viewer

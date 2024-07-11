@@ -2,10 +2,10 @@
 app: {{ .Release.Name }}
 chart-name: "iam-service-account"
 chart-version: {{ .Chart.Version | replace "." "-" }}
-{{- with .Values.global.labels }}
-{{- toYaml . | nindent 0 }}
+{{- range $k, $v := .Values.global.labels }}
+{{ printf "%s: %s" $k ($v | quote) }}
 {{- end -}}
-{{- with .Values.labels }}
-{{- toYaml . | nindent 0 }}
-{{- end }}
+{{- range $k, $v := .Values.labels }}
+{{ printf "%s: %s" $k ($v | quote) }}
+{{- end -}}
 {{- end -}}

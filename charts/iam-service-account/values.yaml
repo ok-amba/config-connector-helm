@@ -6,9 +6,9 @@ global:
   labels: {}
 
   # The Google Project ID.
-  # [Required for Workload Identity]
-  projectID: null 
- 
+  # [Required]
+  projectID: null
+
 # Name of the Config Connector resource.
 # The name will be the ID of the Google Service Account and must be between 6 and 30 characters.
 name: iamserviceaccount-sample

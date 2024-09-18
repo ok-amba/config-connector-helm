@@ -130,6 +130,15 @@ entries:
     version: 0.1.0
   iam-service-account:
   - apiVersion: v2
+    created: "2024-09-18T09:26:26.978261147Z"
+    description: A Helm chart for creating Google Cloud IAM service accounts.
+    digest: 61e53938ad43e803594999a7e3771a1397402396f57fee16beb20a7a9b94f41a
+    name: iam-service-account
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/iam-service-account-2.1.0-rc4/iam-service-account-2.1.0-rc4.tgz
+    version: 2.1.0-rc4
+  - apiVersion: v2
     created: "2024-09-18T09:06:30.290266876Z"
     description: A Helm chart for creating Google Cloud IAM service accounts.
     digest: fce024e554b3ab7fcd926cb19a2a6bc0dde77008c82732c9f927f583f9aa8d53
@@ -682,4 +691,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2024-09-18T09:06:30.290661984Z"
+generated: "2024-09-18T09:26:26.978448826Z"

@@ -28,10 +28,12 @@ metadata:
     {{- include "iam-service-account.labels" . | nindent 4 }}
 spec:
   resourceRef:
-    apiVersion: iam.cnrm.cloud.google.com/v1beta1
-    kind: IAMServiceAccount
-    name: {{ .Values.name }}
-  member: serviceAccount:{{ .Values.name }}@{{ .Values.global.projectID | required ".global.projectID is required." }}.iam.gserviceaccount.com
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    external: "projects/{{ .Values.global.projectID }}"
+  memberFrom:
+    serviceAccountRef:
+      name: {{ .Values.serviceAccountName }}
   role: roles/secretmanager.secretAccessor
 ---
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
@@ -44,9 +46,11 @@ metadata:
     {{- include "iam-service-account.labels" . | nindent 4 }}
 spec:
   resourceRef:
-    apiVersion: iam.cnrm.cloud.google.com/v1beta1
-    kind: IAMServiceAccount
-    name: {{ .Values.name }}
-  member: "serviceAccount:{{ .Values.name }}@{{ .Values.global.projectID | required ".global.projectID is required." }}.iam.gserviceaccount.com"
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    external: "projects/{{ .Values.global.projectID }}"
+  memberFrom:
+    serviceAccountRef:
+      name: {{ .Values.serviceAccountName }}
   role: roles/secretmanager.viewer
 {{- end }}

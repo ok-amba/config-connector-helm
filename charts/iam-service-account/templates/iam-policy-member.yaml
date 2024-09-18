@@ -33,7 +33,7 @@ spec:
     external: "projects/{{ .Values.global.projectID }}"
   memberFrom:
     serviceAccountRef:
-      name: {{ .Values.serviceAccountName }}
+      name: {{ .Values.name }}
   role: roles/secretmanager.secretAccessor
 ---
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
@@ -51,6 +51,6 @@ spec:
     external: "projects/{{ .Values.global.projectID }}"
   memberFrom:
     serviceAccountRef:
-      name: {{ .Values.serviceAccountName }}
+      name: {{ .Values.name }}
   role: roles/secretmanager.viewer
 {{- end }}

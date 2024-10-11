@@ -25,7 +25,7 @@ annotations: {}
 argoSyncWave: -5
 
 # Gives the service account access to Google Secret Mananger for the given project.
-googleSecretManagerAccess: false
+googleSecretManagerAccess: true
 
 spec:
   # A text description of the service account. Must be less than or equal to 256 UTF-8 bytes.

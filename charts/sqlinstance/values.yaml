@@ -27,7 +27,7 @@ argoSyncWave: -5
 
 # Labels on the Config Connector resource.
 # Google Cloud labels only support hyphens (-), underscores (_), lowercase characters and numbers.
-labels: {}
+labels: {} 
 
 # Annotations on the Config Connector resource.
 annotations: {}  

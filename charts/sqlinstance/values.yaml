@@ -34,7 +34,6 @@ annotations: {}
 
 databaseVersion: POSTGRES_17
 tier: db-f1-micro
-edition: enterprise
 
 # The name of the service account that gets access to the SQL Instance.
 # This referes to the id of the SA without the "@<projectid>.iam.gserviceaccount.com"

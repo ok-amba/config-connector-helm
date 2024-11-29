@@ -30,7 +30,7 @@ argoSyncWave: -5
 labels: {}
 
 # Annotations on the Config Connector resource.
-annotations: {} 
+annotations: {}  
 
 databaseVersion: POSTGRES_17
 tier: db-f1-micro

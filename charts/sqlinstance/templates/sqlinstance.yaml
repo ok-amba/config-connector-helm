@@ -59,6 +59,8 @@ spec:
     databaseFlags:
       - name: cloudsql.iam_authentication
         value: "on"
+      - name: random_page_cost
+        value: "1.1"
       - name: work_mem
         value: {{ include "sqlinstance.work-mem" $ }}
       {{- range $name, $value := .Values.databaseFlags }}

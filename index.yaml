@@ -484,6 +484,15 @@ entries:
     version: 0.0.1
   sqlinstance:
   - apiVersion: v2
+    created: "2024-12-05T10:15:03.90288274Z"
+    description: A Helm chart for creating Google Cloud SQL Instance.
+    digest: ed395769f2ea3a9285c1fdf727a2b618aa29541763fb301e4840812b8df4be2a
+    name: sqlinstance
+    type: application
+    urls:
+    - https://github.com/ok-amba/config-connector-helm/releases/download/sqlinstance-3.0.2/sqlinstance-3.0.2.tgz
+    version: 3.0.2
+  - apiVersion: v2
     created: "2024-02-20T14:56:31.679990551Z"
     description: A Helm chart for creating Google Cloud SQL Instance.
     digest: 41b773d8e0c58e88d2917b63100ebcfbedd7073bc86d56dd657518f709ab47d4
@@ -700,4 +709,4 @@ entries:
     urls:
     - https://github.com/ok-amba/config-connector-helm/releases/download/storagebucket-0.1.0/storagebucket-0.1.0.tgz
     version: 0.1.0
-generated: "2024-09-24T06:36:28.644541997Z"
+generated: "2024-12-05T10:15:03.903100796Z"

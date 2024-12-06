@@ -4,7 +4,7 @@
 
 {{- include "sqlinstance.validate-availability-type" $ }}
 
-apiVersion: sql.cnrm.cloud.google.com/v1beta1
+apiVersion: sql.cnrm.cloud.google.com/v1beta4
 kind: SQLInstance
 metadata:
   name: {{ .Values.name | required "A SQL Instance resource name is required." }}
@@ -31,6 +31,7 @@ spec:
   settings:
     availabilityType: {{ .Values.availabilityType }}
     tier: {{ include "sqlinstance.validate-tier" $ }}
+    edition: ENTERPRISE
 
     {{- with .Values.backupConfiguration }}
     backupConfiguration:

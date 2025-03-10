@@ -24,7 +24,7 @@ metadata:
     {{- end }}
 spec:
   expirationPolicy:
-    ttl: "never"  #Setting as default. See decision records for Pubsub in confluence.
+    ttl: ""  #Setting as default. See decision records for Pubsub in confluence.
 {{- deepCopy $.Values.globalSubscriptionSpecs | merge $sub.spec | toYaml | nindent 2 }}
 ---
 {{- end }}

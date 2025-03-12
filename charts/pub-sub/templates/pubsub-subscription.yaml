@@ -23,6 +23,8 @@ metadata:
     {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
     {{- end }}
 spec:
+  expirationPolicy:
+    ttl: ""  #Setting as default. Default is "never expire". See decision records for Pubsub in confluence.
 {{- deepCopy $.Values.globalSubscriptionSpecs | merge $sub.spec | toYaml | nindent 2 }}
 ---
 {{- end }}

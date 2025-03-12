@@ -2,4 +2,4 @@ apiVersion: v2
 name: pub-sub
 description: A Helm chart for creating Google Cloud Pub/Sub resources.
 type: application
-version: 2.1.0
+version: 2.1.1

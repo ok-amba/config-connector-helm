@@ -17,6 +17,6 @@ spec:
   type: CLOUD_IAM_SERVICE_ACCOUNT
   instanceRef:
     name: {{ .Values.name }}
-  resourceID: {{ .Values.serviceAccountName }}@{{ .Values.global.projectID | required "A project ID is required" }}.iam
+  resourceID: {{ .Values.serviceAccountName }}@{{ .Values.global.projectID | required "A project ID is required" }}.iam.gserviceaccount.com
 ---
 {{- end }}

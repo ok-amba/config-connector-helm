@@ -1,0 +1,14 @@
+name: Chart Releaser Dev - Storagebucket
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'charts/storagebucket/**'
+
+jobs:
+  chart-releaser-google-registry:
+    uses: ./.github/workflows/chart-releaser-google-registry.yml
+    secrets: inherit
+    with:
+      helmChartPath: charts/storagebucket

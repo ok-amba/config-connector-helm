@@ -42,9 +42,10 @@ workloadIdentity:
   # The ID of the Google Cloud Project that contains the Kubernetes cluster.
   gkeProjectID: some-project-id
 
-# [ DEPRECATED ] Use workload identity!
+# [ DEPRECATED CLOUD ] Use workload identity!
 # If keyFile is enabled, Config Connector will create a service account JSON key file and
 # add it to the K8s namespace as a secret called "<service-account-name>-key".
 # In this example the secret will be named "iamserviceaccount-sample-key".
+# It will also create a push secret that will push the key to google secret manager
 keyFile:
   create: false

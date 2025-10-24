@@ -31,6 +31,7 @@ spec:
   settings:
     availabilityType: {{ .Values.availabilityType }}
     tier: {{ include "sqlinstance.validate-tier" $ }}
+    edition: ENTERPRISE
 
     {{- with .Values.backupConfiguration }}
     backupConfiguration:

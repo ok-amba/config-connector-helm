@@ -32,7 +32,7 @@ labels: {}
 # Annotations on the Config Connector resource.
 annotations: {}
 
-databaseVersion: POSTGRES_15
+databaseVersion: POSTGRES_17
 tier: db-f1-micro
 
 # The name of the service account that gets access to the SQL Instance.

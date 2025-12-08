@@ -2,4 +2,4 @@ apiVersion: v2
 name: big-query
 description: A Helm chart for creating Google Cloud Big Query resources.
 type: application
-version: 1.3.1
+version: 1.4.0

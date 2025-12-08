@@ -197,3 +197,33 @@ tests:
     asserts:
       - isNull:
           path: spec.materializedView
+
+  - it: view should have argo sync option
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            view:
+              query: some-query
+    asserts:
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-options"]
+          value: "Force=true,Replace=true"
+          
+  - it: materializedView should have argo sync option
+    set:
+      global.projectID: some-project-id
+      configConnectorSaId: cc-service-account
+      dataSets.dataSetShortName01:
+        name: some-dataset-name
+        tables:
+          - name: some-table-name
+            materializedView:
+              query: some-query
+    asserts:
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-options"]
+          value: "Force=true,Replace=true"

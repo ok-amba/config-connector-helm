@@ -75,18 +75,6 @@ tests:
               name: my-sql
             resourceID: other-sa@other-proj.iam.gserviceaccount.com
 
-  - it: fails when both serviceAccounts and serviceAccountName are set
-    set:
-      global.projectID: my-proj
-      name: my-sql
-      serviceAccountName: legacy-sa
-      serviceAccounts:
-        - name: sa-one
-    asserts:
-      - failedTemplate:
-          errorMessage: "Do not set both serviceAccountName and serviceAccounts. Use serviceAccounts only."
-
-
   - it: renders legacy when serviceAccounts is explicitly empty and serviceAccountName is set
     set:
       global.projectID: my-proj
@@ -115,3 +103,43 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
+  - it: renders BOTH legacy SQLUser and serviceAccounts SQLUsers when both are set
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      serviceAccountName: legacy-sa
+      serviceAccounts:
+        - name: sa-one
+        - email: sa-two@other-proj.iam.gserviceaccount.com
+    asserts:
+      - hasDocuments:
+          count: 3
+
+      # Legacy SQLUser (same-project expansion)
+      - containsDocument:
+          apiVersion: sql.cnrm.cloud.google.com/v1beta1
+          kind: SQLUser
+          metadata:
+            name: legacy-sa
+          spec:
+            instanceRef:
+              name: my-sql
+            resourceID: legacy-sa@my-proj.iam.gserviceaccount.com
+
+      # List: name -> expanded to same-project email
+      - containsDocument:
+          apiVersion: sql.cnrm.cloud.google.com/v1beta1
+          kind: SQLUser
+          spec:
+            instanceRef:
+              name: my-sql
+            resourceID: sa-one@my-proj.iam.gserviceaccount.com
+
+      # List: email -> verbatim
+      - containsDocument:
+          apiVersion: sql.cnrm.cloud.google.com/v1beta1
+          kind: SQLUser
+          spec:
+            instanceRef:
+              name: my-sql
+            resourceID: sa-two@other-proj.iam.gserviceaccount.com

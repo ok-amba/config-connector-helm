@@ -1,4 +1,4 @@
-{{- include "sqlinstance.validateServiceAccounts" . -}}
+{{- include "sqlinstance.validateNoDuplicateServiceAccounts" . -}}
 
 {{- $projectID := .Values.global.projectID | required "A project ID is required" -}}
 {{- $serviceAccounts := default (list) .Values.serviceAccounts -}}
@@ -33,7 +33,7 @@ spec:
 ---
 {{- end }}
 
-{{- if and .Values.serviceAccountName (eq (len $serviceAccounts) 0) }}
+{{- if .Values.serviceAccountName }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPolicyMember
 metadata:

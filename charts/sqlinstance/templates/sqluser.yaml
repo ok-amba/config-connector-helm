@@ -1,4 +1,5 @@
-{{- include "sqlinstance.validateServiceAccounts" . -}}
+{{- include "sqlinstance.validateNoDuplicateServiceAccounts" . -}}
+
 {{- range $sa := (default (list) .Values.serviceAccounts) }}
 {{- $projectID := $.Values.global.projectID | required "A project ID is required" -}}
 {{- $resourceID := (ternary $sa.email (printf "%s@%s.iam.gserviceaccount.com" $sa.name $projectID) (hasKey $sa "email")) -}}
@@ -24,8 +25,7 @@ spec:
 ---
 {{- end }}
 
-{{- $serviceAccounts := default (list) .Values.serviceAccounts -}}
-{{- if and .Values.serviceAccountName (eq (len $serviceAccounts) 0) }}
+{{- if .Values.serviceAccountName }}
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLUser
 metadata:

@@ -42,7 +42,7 @@ serviceAccountName: sqlinstance-sa
 
 # The name of the service account that gets access to the SQL Instance.
 # This referes to the id of the SA without the "@<projectid>.iam.gserviceaccount.com"
-# serviceAccounts: []
+serviceAccounts: []
 # When granting access to IAM SA inside the same KNP as the database, use the name.
 #  - name: sqlinstance-sa
 # When granting access to IAM SA outside the KNP as the database, use the email.

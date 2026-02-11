@@ -87,12 +87,47 @@ tests:
           spec:
             member: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com
 
-  - it: fails when both serviceAccountName and non-empty serviceAccounts are set
+  - it: renders BOTH legacy and serviceAccounts IAMPolicyMembers when both are set
     set:
       global.projectID: my-proj
       serviceAccountName: legacy-sa
       serviceAccounts:
         - name: sa-one
+        - email: sa-two@other-proj.iam.gserviceaccount.com
     asserts:
-      - failedTemplate:
-          errorMessage: "Do not set both serviceAccountName and serviceAccounts. Use serviceAccounts only."
+      - hasDocuments:
+          count: 3
+
+      # Legacy IAMPolicyMember
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            memberFrom:
+              serviceAccountRef:
+                name: legacy-sa
+
+      # List: name -> memberFrom
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            memberFrom:
+              serviceAccountRef:
+                name: sa-one
+
+      # List: email -> spec.member
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            member: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com

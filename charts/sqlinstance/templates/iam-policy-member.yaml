@@ -1,8 +1,43 @@
-{{- if .Values.serviceAccountName }}
+{{- include "sqlinstance.validateServiceAccounts" . -}}
+
+{{- $projectID := .Values.global.projectID | required "A project ID is required" -}}
+{{- $serviceAccounts := default (list) .Values.serviceAccounts -}}
+
+{{- range $sa := $serviceAccounts }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPolicyMember
 metadata:
-  name: sqluser-{{ .Values.serviceAccountName }}
+  name: sqluser-{{ default $sa.name $sa.email | replace "@" "-" | replace "." "-" | lower | trunc 63 | trimSuffix "-" }}
+  {{- if $.Values.argoSyncWave }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
+  {{- end }}
+  labels:
+    {{- include "sqlinstance.labels" $ | nindent 4 }}
+    {{- range $k, $v := $.Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
+    {{- end }}
+spec:
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    external: "projects/{{ $projectID }}"
+  role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+  {{- if and (hasKey $sa "email") $sa.email }}
+  member: serviceAccount:{{ $sa.email }}
+  {{- else }}
+  memberFrom:
+    serviceAccountRef:
+      name: {{ $sa.name }}
+  {{- end }}
+---
+{{- end }}
+
+{{- if and .Values.serviceAccountName (eq (len $serviceAccounts) 0) }}
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: sqluser-{{ .Values.serviceAccountName | replace "@" "-" | replace "." "-" | lower | trunc 63 | trimSuffix "-" }}
   {{- if .Values.argoSyncWave }}
   annotations:
     argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
@@ -23,4 +58,3 @@ spec:
       name: {{ .Values.serviceAccountName }}
 ---
 {{- end }}
-

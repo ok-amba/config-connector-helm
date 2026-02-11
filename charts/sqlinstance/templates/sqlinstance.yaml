@@ -1,8 +1,13 @@
 {{- if eq .Values.name "sqlinstance-sample" -}}
-{{- fail (printf "you have not given your sqlinstance a proper name. [%s] " .Values.name) -}}
+{{- fail "you have not given your sqlinstance a proper name" -}}
 {{- end -}}
 
 {{- include "sqlinstance.validate-availability-type" $ }}
+
+# A fail fast check to prevent users from enabling PSC without preparing the SQLInstance for PSC first.
+{{- if and .Values.enablePSC (not .Values.preparePSC) -}}
+{{- fail "enablePSC=true requires preparePSC=true (apply preparePSC first, then enable PSC)" -}}
+{{- end -}}
 
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLInstance
@@ -48,7 +53,9 @@ spec:
     insightsConfig:
       queryInsightsEnabled: {{ .queryInsightsEnabled }}
       recordApplicationTags: {{ .recordApplicationTags }}
-      recordClientAddress: {{ .recordClientAddress }}
+      # When using Private Service Connect, the recordClientAddress flag must ALWAYS be set to false, 
+      # otherwise the SQLInstance will fail to update with an error like "Invalid request: recordClientAddress must be false when private connectivity is enabled."
+      recordClientAddress: {{- if $.Values.preparePSC }} false {{- else }} {{ .recordClientAddress }} {{- end }}
     {{- end }}
 
     {{- with .Values.maintenanceWindow }}
@@ -57,6 +64,17 @@ spec:
       hour: {{ .hour }}
       updateTrack: {{ .updateTrack }}
     {{- end }}
+
+    ipConfiguration:
+      ipv4Enabled: true
+      {{- if .Values.preparePSC }}
+      privateNetwork: projects/{{ .Values.global.projectID | required "A project ID is required" }}/global/networks/default
+      {{- end }}
+      {{- if .Values.enablePSC }}
+      pscConfig:
+        enabled: true
+      {{- end }}
+
     databaseFlags:
       - name: cloudsql.iam_authentication
         value: "on"

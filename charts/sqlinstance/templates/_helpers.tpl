@@ -8,6 +8,16 @@ sqlinstance: {{ .Values.name }}
 {{- end -}}
 {{- end -}}
 
+
+# Throw error if both serviceAccountName and serviceAccounts has been set. 
+{{- define "sqlinstance.validateServiceAccounts" -}}
+{{- $serviceAccounts := default (list) .Values.serviceAccounts -}}
+{{- if and .Values.serviceAccountName (gt (len $serviceAccounts) 0) -}}
+{{- fail "Do not set both serviceAccountName and serviceAccounts. Use serviceAccounts only." -}}
+{{- end -}}
+{{- end -}}
+
+
 ##########################################################
 #                   Calculate work_mem                   #
 ##########################################################

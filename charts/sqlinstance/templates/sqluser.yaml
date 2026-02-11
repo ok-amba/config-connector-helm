@@ -1,4 +1,31 @@
-{{- if .Values.serviceAccountName }}
+{{- include "sqlinstance.validateServiceAccounts" . -}}
+{{- range $sa := (default (list) .Values.serviceAccounts) }}
+{{- $projectID := $.Values.global.projectID | required "A project ID is required" -}}
+{{- $resourceID := (ternary $sa.email (printf "%s@%s.iam.gserviceaccount.com" $sa.name $projectID) (hasKey $sa "email")) -}}
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLUser
+metadata:
+  name: {{ default $sa.name $sa.email | replace "@" "-" | replace "." "-" | trunc 63 | trimSuffix "-" }}
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    {{- if $.Values.argoSyncWave }}
+    argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
+    {{- end }}
+  labels:
+    {{- include "sqlinstance.labels" $ | nindent 4 }}
+    {{- range $k, $v := $.Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
+    {{- end }}
+spec:
+  type: CLOUD_IAM_SERVICE_ACCOUNT
+  instanceRef:
+    name: {{ $.Values.name }}
+  resourceID: {{ $resourceID }}
+---
+{{- end }}
+
+{{- $serviceAccounts := default (list) .Values.serviceAccounts -}}
+{{- if and .Values.serviceAccountName (eq (len $serviceAccounts) 0) }}
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLUser
 metadata:
@@ -17,6 +44,6 @@ spec:
   type: CLOUD_IAM_SERVICE_ACCOUNT
   instanceRef:
     name: {{ .Values.name }}
-  resourceID: {{ .Values.serviceAccountName }}@{{ .Values.global.projectID | required "A project ID is required" }}.iam
+  resourceID: {{ .Values.serviceAccountName }}@{{ .Values.global.projectID | required "A project ID is required" }}.iam.gserviceaccount.com
 ---
 {{- end }}

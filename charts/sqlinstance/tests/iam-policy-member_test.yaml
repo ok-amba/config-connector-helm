@@ -1,0 +1,133 @@
+suite: IAMPolicyMember template (legacy + serviceAccounts)
+templates:
+  - ../templates/iam-policy-member.yaml
+
+tests:
+  - it: legacy serviceAccountName renders exactly 1 IAMPolicyMember (1-1 behavior)
+    set:
+      global.projectID: my-proj
+      serviceAccounts: []
+      serviceAccountName: sqlinstance-sa
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          metadata:
+            name: sqluser-sqlinstance-sa
+          spec:
+            resourceRef:
+              apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+              kind: Project
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            memberFrom:
+              serviceAccountRef:
+                name: sqlinstance-sa
+
+  - it: serviceAccounts with name renders IAMPolicyMember using memberFrom.serviceAccountRef
+    set:
+      global.projectID: my-proj
+      serviceAccountName: ""   # ensure legacy doesn't render
+      serviceAccounts:
+        - name: sqlinstance-sa
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            memberFrom:
+              serviceAccountRef:
+                name: sqlinstance-sa
+
+  - it: serviceAccounts with email renders IAMPolicyMember using spec.member (cross-project support)
+    set:
+      global.projectID: my-proj
+      serviceAccountName: ""
+      serviceAccounts:
+        - email: other-sa@other-proj.iam.gserviceaccount.com
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            member: serviceAccount:other-sa@other-proj.iam.gserviceaccount.com
+
+  - it: serviceAccounts list renders one IAMPolicyMember per entry (name + email mix)
+    set:
+      global.projectID: my-proj
+      serviceAccountName: ""
+      serviceAccounts:
+        - name: sa-one
+        - email: sa-two@other-proj.iam.gserviceaccount.com
+    asserts:
+      - hasDocuments:
+          count: 2
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            memberFrom:
+              serviceAccountRef:
+                name: sa-one
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            member: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com
+
+  - it: renders BOTH legacy and serviceAccounts IAMPolicyMembers when both are set
+    set:
+      global.projectID: my-proj
+      serviceAccountName: legacy-sa
+      serviceAccounts:
+        - name: sa-one
+        - email: sa-two@other-proj.iam.gserviceaccount.com
+    asserts:
+      - hasDocuments:
+          count: 3
+
+      # Legacy IAMPolicyMember
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            memberFrom:
+              serviceAccountRef:
+                name: legacy-sa
+
+      # List: name -> memberFrom
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            memberFrom:
+              serviceAccountRef:
+                name: sa-one
+
+      # List: email -> spec.member
+      - containsDocument:
+          apiVersion: iam.cnrm.cloud.google.com/v1beta1
+          kind: IAMPolicyMember
+          spec:
+            resourceRef:
+              external: "projects/my-proj"
+            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
+            member: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com

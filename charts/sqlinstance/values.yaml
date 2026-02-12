@@ -35,13 +35,32 @@ annotations: {}
 databaseVersion: POSTGRES_17
 tier: db-f1-micro
 
+# Can still be used for service accounts inside the same KNP as the Database.
+# Use "serviceAccounts" to add multiple, and gain support for IAM SA's from outside the KNP. 
+# Do NOT use this together with "serviceAccounts". The serviceAccountName is only kept for backwards compatibility.
+serviceAccountName: sqlinstance-sa
+
 # The name of the service account that gets access to the SQL Instance.
 # This referes to the id of the SA without the "@<projectid>.iam.gserviceaccount.com"
-serviceAccountName: null
+serviceAccounts: []
+# When granting access to IAM SA inside the same KNP as the database, use the name.
+#  - name: sqlinstance-sa
+# When granting access to IAM SA outside the KNP as the database, use the email.
+#  - email: sqlinstance-sa@<projectid>.iam.gserviceaccount.com
 
 # Possible values are REGIONAL for high availability or ZONAL for a single zone instance.
 # Recommendation id to use REGIONAL for production use and ZONAL for test.
 availabilityType: REGIONAL
+
+# The following properties are for making it possible to connect from the Horizon Clusters, to the SQLInstances in your KNP's. 
+# In order to connect from the Horizon Clusters to the SQLInstances on GCP Gen1, you need to use Private Service connect (PSC).
+# Prerequisites: 
+# Set global.projectID
+# Follow these instructions stricly to set it up correctly:
+# 1. You need to first prepare the SQLInstance for Private Service Connect (PSC), by toggling preparePSC to true, merge to master, sync in ArgoCD and wait for the update of the DB to finish.
+preparePSC: false
+# 2. Then you can enable Private Service Connect (PSC) by toggling the enablePSC value to true, merge to master, sync in ArgoCD and wait for the update of the DB to finish.
+enablePSC: false
 
 backupConfiguration:
   backupRetentionSettings:

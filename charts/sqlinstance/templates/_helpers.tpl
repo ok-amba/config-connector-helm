@@ -1,3 +1,62 @@
+##########################################################
+#                   Ensure no dublicate SA's             #
+##########################################################
+
+{{/*
+Validate that legacy serviceAccountName + serviceAccounts do not contain duplicates.
+Duplicates are detected by canonical service account email:
+- legacy serviceAccountName => <name>@<projectID>.iam.gserviceaccount.com
+- serviceAccounts[].name    => <name>@<projectID>.iam.gserviceaccount.com
+- serviceAccounts[].email   => <email> (verbatim)
+
+Fails with a list of duplicate canonical emails.
+
+Usage:
+  {{- include "sqlinstance.validateNoDuplicateServiceAccounts" . -}}
+*/}}
+{{- define "sqlinstance.validateNoDuplicateServiceAccounts" -}}
+{{- $projectID := .Values.global.projectID | required "A project ID is required" -}}
+{{- $serviceAccounts := default (list) .Values.serviceAccounts -}}
+
+{{- $seen := dict -}}
+{{- $dups := list -}}
+
+{{- /* legacy */ -}}
+{{- if .Values.serviceAccountName -}}
+  {{- $email := printf "%s@%s.iam.gserviceaccount.com" .Values.serviceAccountName $projectID -}}
+  {{- if hasKey $seen $email -}}
+    {{- $dups = append $dups $email -}}
+  {{- else -}}
+    {{- $_ := set $seen $email true -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* list */ -}}
+{{- range $sa := $serviceAccounts -}}
+  {{- $email := "" -}}
+  {{- if and (hasKey $sa "email") $sa.email -}}
+    {{- $email = $sa.email -}}
+  {{- else -}}
+    {{- $email = printf "%s@%s.iam.gserviceaccount.com" $sa.name $projectID -}}
+  {{- end -}}
+
+  {{- if hasKey $seen $email -}}
+    {{- $dups = append $dups $email -}}
+  {{- else -}}
+    {{- $_ := set $seen $email true -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if gt (len $dups) 0 -}}
+{{- fail (printf "Duplicate service account(s) detected across serviceAccountName/serviceAccounts: %s" (join ", " $dups)) -}}
+{{- end -}}
+{{- end -}}
+
+
+##########################################################
+#                   Define sqlinstance labels:           #
+##########################################################
+
 {{- define "sqlinstance.labels" -}}
 app: {{ .Release.Name }}
 chart-name: "sqlinstance"

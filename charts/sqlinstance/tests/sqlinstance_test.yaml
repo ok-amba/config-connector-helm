@@ -1,0 +1,97 @@
+suite: SQLInstance template (PSC + insightsConfig)
+templates:
+  - ../templates/sqlinstance.yaml
+
+tests:
+  - it: fails when name is left as sqlinstance-sample
+    set:
+      global.projectID: my-proj
+      name: sqlinstance-sample
+    asserts:
+      - failedTemplate:
+          errorMessage: "you have not given your sqlinstance a proper name"
+
+  - it: fails when enablePSC is true but preparePSC is false
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      preparePSC: false
+      enablePSC: true
+    asserts:
+      - failedTemplate:
+          errorMessage: "enablePSC=true requires preparePSC=true (apply preparePSC first, then enable PSC)"
+
+  - it: preparePSC=true forces recordClientAddress=false and sets privateNetwork (no PSC enabled)
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      preparePSC: true
+      enablePSC: false
+      insightsConfig:
+        queryInsightsEnabled: true
+        recordApplicationTags: true
+        recordClientAddress: true   # should be overridden to false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          apiVersion: sql.cnrm.cloud.google.com/v1beta1
+          kind: SQLInstance
+          metadata:
+            name: my-sql
+          spec:
+            settings:
+              insightsConfig:
+                recordClientAddress: false
+              ipConfiguration:
+                privateNetwork: projects/my-proj/global/networks/default
+
+  - it: preparePSC=false uses values.insightsConfig.recordClientAddress and does not set privateNetwork
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      preparePSC: false
+      enablePSC: false
+      insightsConfig:
+        queryInsightsEnabled: true
+        recordApplicationTags: true
+        recordClientAddress: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          apiVersion: sql.cnrm.cloud.google.com/v1beta1
+          kind: SQLInstance
+          metadata:
+            name: my-sql
+          spec:
+            settings:
+              insightsConfig:
+                recordClientAddress: true
+
+  - it: enablePSC=true renders pscConfig.enabled=true and recordClientAddress=false (because preparePSC must be true)
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      preparePSC: true
+      enablePSC: true
+      insightsConfig:
+        queryInsightsEnabled: true
+        recordApplicationTags: true
+        recordClientAddress: true   # overridden to false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          apiVersion: sql.cnrm.cloud.google.com/v1beta1
+          kind: SQLInstance
+          metadata:
+            name: my-sql
+          spec:
+            settings:
+              insightsConfig:
+                recordClientAddress: false
+              ipConfiguration:
+                privateNetwork: projects/my-proj/global/networks/default
+                pscConfig:
+                  enabled: true

@@ -44,7 +44,7 @@ tests:
               insightsConfig:
                 recordClientAddress: false
               ipConfiguration:
-                privateNetwork: projects/my-proj/global/networks/default
+                privateNetwork: projects/my-proj/global/networks/migration-vpc
 
   - it: preparePSC=false uses values.insightsConfig.recordClientAddress and does not set privateNetwork
     set:
@@ -92,6 +92,6 @@ tests:
               insightsConfig:
                 recordClientAddress: false
               ipConfiguration:
-                privateNetwork: projects/my-proj/global/networks/default
+                privateNetwork: projects/my-proj/global/networks/migration-vpc
                 pscConfig:
                   enabled: true

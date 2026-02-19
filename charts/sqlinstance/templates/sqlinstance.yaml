@@ -72,7 +72,7 @@ spec:
       {{- end }}
       {{- if .Values.enablePSC }}
       pscConfig:
-        enabled: true
+        pscEnabled: true
       {{- end }}
 
     databaseFlags:

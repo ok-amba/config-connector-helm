@@ -24,7 +24,7 @@ spec:
     external: "projects/{{ $projectID }}"
   role: organizations/909834982171/roles/cloudsql.serviceaccount.access
   {{- if and (hasKey $sa "email") $sa.email }}
-  member: serviceAccount:{{ $sa.email }}
+  member: serviceAccount:{{ $sa.email }}.gserviceaccount.com
   {{- else }}
   memberFrom:
     serviceAccountRef:
@@ -33,7 +33,7 @@ spec:
 ---
 {{- end }}
 
-{{- if .Values.serviceAccountName }}
+{{- if and .Values.serviceAccountName (ne .Values.serviceAccountName "sqlinstance-sa") }}
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPolicyMember
 metadata:

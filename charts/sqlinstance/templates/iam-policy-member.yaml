@@ -24,7 +24,7 @@ spec:
     external: "projects/{{ $projectID }}"
   role: organizations/909834982171/roles/cloudsql.serviceaccount.access
   {{- if and (hasKey $sa "email") $sa.email }}
-  member: serviceAccount:{{ $sa.email }}
+  member: serviceAccount:{{ $sa.email }}.gserviceaccount.com
   {{- else }}
   memberFrom:
     serviceAccountRef:

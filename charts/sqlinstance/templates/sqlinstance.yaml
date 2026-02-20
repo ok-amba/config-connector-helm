@@ -68,11 +68,12 @@ spec:
     ipConfiguration:
       ipv4Enabled: true
       {{- if .Values.preparePSC }}
-      privateNetwork: projects/{{ .Values.global.projectID | required "A project ID is required" }}/global/networks/migration-vpc
+      privateNetworkRef:
+        external: projects/{{ .Values.global.projectID | required "A project ID is required" }}/global/networks/migration-vpc
       {{- end }}
       {{- if .Values.enablePSC }}
       pscConfig:
-        enabled: true
+        - pscEnabled: true
       {{- end }}
 
     databaseFlags:

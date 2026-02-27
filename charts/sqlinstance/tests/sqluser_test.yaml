@@ -3,21 +3,12 @@ templates:
   - ../templates/sqluser.yaml
 
 tests:
-  - it: renders legacy SQLUser by default (values.yaml has serviceAccountName set)
+  - it: renders nothing when nothing is provided (values.yaml in Chart has serviceAccountName set)
     set:
       global.projectID: my-proj
     asserts:
       - hasDocuments:
-          count: 1
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          metadata:
-            name: sqlinstance-sa
-          spec:
-            instanceRef:
-              name: sqlinstance-sample
-            resourceID: sqlinstance-sa@my-proj.iam.gserviceaccount.com
+          count: 0
 
   - it: renders nothing when legacy is disabled and no serviceAccounts are provided
     set:
@@ -27,7 +18,37 @@ tests:
       - hasDocuments:
           count: 0
 
-  - it: renders SQLUsers from serviceAccounts list (same-project names expanded)
+  #####################################################################
+  # serviceAccounts[].name uses old behavior: <name>@<global.projectID>.iam
+  #####################################################################
+  - it: renders SQLUser from serviceAccounts list (name expands to @project.iam)
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      serviceAccounts:
+        - name: sa-one
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: SQLUser
+      - equal:
+          path: apiVersion
+          value: sql.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: metadata.name
+          value: sa-one
+      - equal:
+          path: spec.type
+          value: CLOUD_IAM_SERVICE_ACCOUNT
+      - equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - equal:
+          path: spec.resourceID
+          value: sa-one@my-proj.iam
+
+  - it: renders SQLUsers from serviceAccounts list (two names expand to @project.iam)
     set:
       global.projectID: my-proj
       name: my-sql
@@ -38,26 +59,97 @@ tests:
     asserts:
       - hasDocuments:
           count: 2
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          metadata:
-            name: sa-one
-          spec:
-            instanceRef:
-              name: my-sql
-            resourceID: sa-one@my-proj.iam.gserviceaccount.com
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          metadata:
-            name: sa-two
-          spec:
-            instanceRef:
-              name: my-sql
-            resourceID: sa-two@my-proj.iam.gserviceaccount.com
 
-  - it: supports cross-project SA via email field (resourceID uses email verbatim)
+      # doc 0
+      - documentIndex: 0
+        isKind:
+          of: SQLUser
+      - documentIndex: 0
+        equal:
+          path: apiVersion
+          value: sql.cnrm.cloud.google.com/v1beta1
+      - documentIndex: 0
+        equal:
+          path: metadata.name
+          value: sa-one
+      - documentIndex: 0
+        equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - documentIndex: 0
+        equal:
+          path: spec.resourceID
+          value: sa-one@my-proj.iam
+
+      # doc 1
+      - documentIndex: 1
+        isKind:
+          of: SQLUser
+      - documentIndex: 1
+        equal:
+          path: apiVersion
+          value: sql.cnrm.cloud.google.com/v1beta1
+      - documentIndex: 1
+        equal:
+          path: metadata.name
+          value: sa-two
+      - documentIndex: 1
+        equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - documentIndex: 1
+        equal:
+          path: spec.resourceID
+          value: sa-two@my-proj.iam
+
+  #####################################################################
+  # serviceAccounts[].email is normalized to full SA email
+  #####################################################################
+  - it: "normalizes serviceAccounts email: local@proj -> local@proj.iam.gserviceaccount.com"
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      serviceAccountName: ""
+      serviceAccounts:
+        - email: other-sa@other-proj
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: SQLUser
+      - equal:
+          path: apiVersion
+          value: sql.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - equal:
+          path: spec.resourceID
+          value: other-sa@other-proj.iam.gserviceaccount.com
+
+  - it: "normalizes serviceAccounts email: local@proj.iam -> local@proj.iam.gserviceaccount.com"
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      serviceAccountName: ""
+      serviceAccounts:
+        - email: other-sa@other-proj.iam
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: SQLUser
+      - equal:
+          path: apiVersion
+          value: sql.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - equal:
+          path: spec.resourceID
+          value: other-sa@other-proj.iam.gserviceaccount.com
+
+  - it: keeps serviceAccounts email fully qualified as-is (already canonical)
     set:
       global.projectID: my-proj
       name: my-sql
@@ -67,14 +159,35 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          spec:
-            instanceRef:
-              name: my-sql
-            resourceID: other-sa@other-proj.iam.gserviceaccount.com
+      - isKind:
+          of: SQLUser
+      - equal:
+          path: apiVersion
+          value: sql.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - equal:
+          path: spec.resourceID
+          value: other-sa@other-proj.iam.gserviceaccount.com
 
+  #####################################################################
+  # invalid email input should fail (no '@')
+  #####################################################################
+  - it: fails when serviceAccounts email does not contain '@'
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      serviceAccountName: ""
+      serviceAccounts:
+        - email: other-sa
+    asserts:
+      - failedTemplate:
+          errorMessage: serviceAccounts[].email must contain '@' (got "other-sa")
+
+  #####################################################################
+  # Legacy behavior unchanged (resourceID ends with .iam)
+  #####################################################################
   - it: renders legacy when serviceAccounts is explicitly empty and serviceAccountName is set
     set:
       global.projectID: my-proj
@@ -84,15 +197,20 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          metadata:
-            name: legacy-sa
-          spec:
-            instanceRef:
-              name: my-sql
-            resourceID: legacy-sa@my-proj.iam.gserviceaccount.com
+      - isKind:
+          of: SQLUser
+      - equal:
+          path: apiVersion
+          value: sql.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: metadata.name
+          value: legacy-sa
+      - equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - equal:
+          path: spec.resourceID
+          value: legacy-sa@my-proj.iam
 
   - it: renders nothing when serviceAccounts is explicitly empty and legacy is disabled
     set:
@@ -103,43 +221,95 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-  - it: renders BOTH legacy SQLUser and serviceAccounts SQLUsers when both are set
+
+  #####################################################################
+  # Duplicate detection (based on helper logic)
+  #####################################################################
+  - it: fails when legacy and serviceAccounts.name refer to same canonical email
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      serviceAccountName: dup-sa
+      serviceAccounts:
+        - name: dup-sa
+    asserts:
+      - failedTemplate:
+          errorMessage: "Duplicate service account(s) detected across serviceAccountName/serviceAccounts: dup-sa@my-proj.iam"
+
+  - it: fails when two serviceAccounts.email forms normalize to the same canonical email
+    set:
+      global.projectID: my-proj
+      name: my-sql
+      serviceAccountName: ""
+      serviceAccounts:
+        - email: other-sa@other-proj
+        - email: other-sa@other-proj.iam.gserviceaccount.com
+    asserts:
+      - failedTemplate:
+          errorMessage: "Duplicate service account(s) detected across serviceAccountName/serviceAccounts: other-sa@other-proj.iam.gserviceaccount.com"
+
+  #####################################################################
+  # Both legacy + list renders (non-duplicate)
+  #####################################################################
+  - it: renders BOTH legacy SQLUser and serviceAccounts SQLUsers when both are set (non-duplicate)
     set:
       global.projectID: my-proj
       name: my-sql
       serviceAccountName: legacy-sa
       serviceAccounts:
         - name: sa-one
-        - email: sa-two@other-proj.iam.gserviceaccount.com
+        - email: sa-two@other-proj
     asserts:
       - hasDocuments:
           count: 3
 
-      # Legacy SQLUser (same-project expansion)
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          metadata:
-            name: legacy-sa
-          spec:
-            instanceRef:
-              name: my-sql
-            resourceID: legacy-sa@my-proj.iam.gserviceaccount.com
+      # doc 0 - list name (range renders first)
+      - documentIndex: 0
+        isKind:
+          of: SQLUser
+      - documentIndex: 0
+        equal:
+          path: metadata.name
+          value: sa-one
+      - documentIndex: 0
+        equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - documentIndex: 0
+        equal:
+          path: spec.resourceID
+          value: sa-one@my-proj.iam
 
-      # List: name -> expanded to same-project email
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          spec:
-            instanceRef:
-              name: my-sql
-            resourceID: sa-one@my-proj.iam.gserviceaccount.com
+      # doc 1 - list email normalized (metadata.name is derived from email)
+      - documentIndex: 1
+        isKind:
+          of: SQLUser
+      - documentIndex: 1
+        equal:
+          path: metadata.name
+          value: sa-two-other-proj
+      - documentIndex: 1
+        equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - documentIndex: 1
+        equal:
+          path: spec.resourceID
+          value: sa-two@other-proj.iam.gserviceaccount.com
 
-      # List: email -> verbatim
-      - containsDocument:
-          apiVersion: sql.cnrm.cloud.google.com/v1beta1
-          kind: SQLUser
-          spec:
-            instanceRef:
-              name: my-sql
-            resourceID: sa-two@other-proj.iam.gserviceaccount.com
+      # doc 2 - legacy (renders after range)
+      - documentIndex: 2
+        isKind:
+          of: SQLUser
+      - documentIndex: 2
+        equal:
+          path: metadata.name
+          value: legacy-sa
+      - documentIndex: 2
+        equal:
+          path: spec.instanceRef.name
+          value: my-sql
+      - documentIndex: 2
+        equal:
+          path: spec.resourceID
+          value: legacy-sa@my-proj.iam

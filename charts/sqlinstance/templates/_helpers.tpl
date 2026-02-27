@@ -1,15 +1,71 @@
 ##########################################################
+#              Service account normalization             #
+##########################################################
+
+{{/*
+Normalize a service account "email" value into a fully-qualified SA email.
+
+Accepted inputs:
+  - local@project
+  - local@project.iam
+  - local@project.iam.gserviceaccount.com
+
+Rejected:
+  - local            (no '@')
+  - local@           (missing project)
+  - @project         (missing local)
+
+Returns:
+  - local@project.iam.gserviceaccount.com
+*/}}
+{{- define "sqlinstance.normalizeServiceAccountEmail" -}}
+{{- $raw := required "serviceAccounts[].email is required" . -}}
+
+{{- if not (contains "@" $raw) -}}
+  {{- fail (printf "serviceAccounts[].email must contain '@' (got %q)" $raw) -}}
+{{- end -}}
+
+{{- $parts := splitList "@" $raw -}}
+{{- if ne (len $parts) 2 -}}
+  {{- fail (printf "serviceAccounts[].email must contain exactly one '@' (got %q)" $raw) -}}
+{{- end -}}
+
+{{- $local := index $parts 0 -}}
+{{- $dom := index $parts 1 -}}
+
+{{- if or (eq $local "") (eq $dom "") -}}
+  {{- fail (printf "serviceAccounts[].email must be of form local@project[.iam[.gserviceaccount.com]] (got %q)" $raw) -}}
+{{- end -}}
+
+{{- /* Strip known suffixes to get the project id */ -}}
+{{- $project := $dom -}}
+{{- $project = regexReplaceAll "\\.iam\\.gserviceaccount\\.com$" $project "" -}}
+{{- $project = regexReplaceAll "\\.iam$" $project "" -}}
+
+{{- if eq $project "" -}}
+  {{- fail (printf "serviceAccounts[].email missing project (got %q)" $raw) -}}
+{{- end -}}
+
+{{- printf "%s@%s.iam.gserviceaccount.com" $local $project -}}
+{{- end -}}
+
+
+##########################################################
 #                   Ensure no dublicate SA's             #
 ##########################################################
 
 {{/*
 Validate that legacy serviceAccountName + serviceAccounts do not contain duplicates.
-Duplicates are detected by canonical service account email:
-- legacy serviceAccountName => <name>@<projectID>.iam.gserviceaccount.com
-- serviceAccounts[].name    => <name>@<projectID>.iam.gserviceaccount.com
-- serviceAccounts[].email   => <email> (verbatim)
 
-Fails with a list of duplicate canonical emails.
+Rules for duplicate detection:
+- legacy serviceAccountName:
+    => <serviceAccountName>@<global.projectID>.iam              (DO NOT normalize legacy input)
+- serviceAccounts[].name:
+    => <name>@<global.projectID>.iam                            (old behavior, for duplicate detection)
+- serviceAccounts[].email:
+    => normalized to <local>@<project>.iam.gserviceaccount.com  (rejects values without '@')
+
+Fails with a list of duplicate strings as tracked above.
 
 Usage:
   {{- include "sqlinstance.validateNoDuplicateServiceAccounts" . -}}
@@ -21,37 +77,41 @@ Usage:
 {{- $seen := dict -}}
 {{- $dups := list -}}
 
-{{- /* legacy */ -}}
+{{- /* legacy: keep behavior; no normalization */ -}}
 {{- if .Values.serviceAccountName -}}
-  {{- $email := printf "%s@%s.iam.gserviceaccount.com" .Values.serviceAccountName $projectID -}}
-  {{- if hasKey $seen $email -}}
-    {{- $dups = append $dups $email -}}
+  {{- $legacyID := printf "%s@%s.iam" .Values.serviceAccountName $projectID -}}
+  {{- if hasKey $seen $legacyID -}}
+    {{- $dups = append $dups $legacyID -}}
   {{- else -}}
-    {{- $_ := set $seen $email true -}}
+    {{- $_ := set $seen $legacyID true -}}
   {{- end -}}
 {{- end -}}
 
 {{- /* list */ -}}
 {{- range $sa := $serviceAccounts -}}
-  {{- $email := "" -}}
+  {{- $id := "" -}}
+
   {{- if and (hasKey $sa "email") $sa.email -}}
-    {{- $email = $sa.email -}}
+    {{- /* Normalize/validate email-shaped input */ -}}
+    {{- $id = include "sqlinstance.normalizeServiceAccountEmail" $sa.email -}}
+  {{- else if and (hasKey $sa "name") $sa.name -}}
+    {{- /* Old behavior: name expands to @project.iam */ -}}
+    {{- $id = printf "%s@%s.iam" $sa.name $projectID -}}
   {{- else -}}
-    {{- $email = printf "%s@%s.iam.gserviceaccount.com" $sa.name $projectID -}}
+    {{- fail "Each item in serviceAccounts must have either non-empty 'email' or non-empty 'name'" -}}
   {{- end -}}
 
-  {{- if hasKey $seen $email -}}
-    {{- $dups = append $dups $email -}}
+  {{- if hasKey $seen $id -}}
+    {{- $dups = append $dups $id -}}
   {{- else -}}
-    {{- $_ := set $seen $email true -}}
+    {{- $_ := set $seen $id true -}}
   {{- end -}}
 {{- end -}}
 
 {{- if gt (len $dups) 0 -}}
-{{- fail (printf "Duplicate service account(s) detected across serviceAccountName/serviceAccounts: %s" (join ", " $dups)) -}}
+  {{- fail (printf "Duplicate service account(s) detected across serviceAccountName/serviceAccounts: %s" (join ", " $dups)) -}}
 {{- end -}}
 {{- end -}}
-
 
 ##########################################################
 #                   Define sqlinstance labels:           #

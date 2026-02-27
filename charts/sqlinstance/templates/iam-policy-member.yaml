@@ -7,7 +7,7 @@
 apiVersion: iam.cnrm.cloud.google.com/v1beta1
 kind: IAMPolicyMember
 metadata:
-  name: sqluser-{{ default $sa.name $sa.email | replace "@" "-" | replace "." "-" | lower | trunc 63 | trimSuffix "-" }}
+  name: sqluser-{{ (coalesce $sa.name $sa.email) | replace "@" "-" | replace "." "-" | lower | trunc 63 | trimSuffix "-" }}
   {{- if $.Values.argoSyncWave }}
   annotations:
     argocd.argoproj.io/sync-wave: {{ $.Values.argoSyncWave | quote }}
@@ -24,11 +24,13 @@ spec:
     external: "projects/{{ $projectID }}"
   role: organizations/909834982171/roles/cloudsql.serviceaccount.access
   {{- if and (hasKey $sa "email") $sa.email }}
-  member: serviceAccount:{{ $sa.email }}.gserviceaccount.com
-  {{- else }}
+  member: serviceAccount:{{ include "sqlinstance.normalizeServiceAccountEmail" $sa.email }}
+  {{- else if and (hasKey $sa "name") $sa.name }}
   memberFrom:
     serviceAccountRef:
       name: {{ $sa.name }}
+  {{- else }}
+  {{- fail "Each item in serviceAccounts must have either non-empty 'email' or non-empty 'name'" -}}
   {{- end }}
 ---
 {{- end }}
@@ -51,7 +53,7 @@ spec:
   resourceRef:
     apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
     kind: Project
-    external: "projects/{{ .Values.global.projectID }}"
+    external: "projects/{{ .Values.global.projectID | required "A project ID is required" }}"
   role: organizations/909834982171/roles/cloudsql.serviceaccount.access
   memberFrom:
     serviceAccountRef:

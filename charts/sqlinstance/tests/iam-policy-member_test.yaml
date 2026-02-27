@@ -7,24 +7,35 @@ tests:
     set:
       global.projectID: my-proj
       serviceAccounts: []
-      serviceAccountName: sqlinstance-sa
+      serviceAccountName: randomname-sa
     asserts:
       - hasDocuments:
           count: 1
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          metadata:
-            name: sqluser-sqlinstance-sa
-          spec:
-            resourceRef:
-              apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
-              kind: Project
-              external: "projects/my-proj"
-            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
-            memberFrom:
-              serviceAccountRef:
-                name: sqlinstance-sa
+      - isKind:
+          of: IAMPolicyMember
+      - equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: metadata.name
+          value: sqluser-randomname-sa
+      - equal:
+          path: spec.resourceRef.apiVersion
+          value: resourcemanager.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: spec.resourceRef.kind
+          value: Project
+      - equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - equal:
+          path: spec.memberFrom.serviceAccountRef.name
+          value: randomname-sa
+      - notExists:
+          path: spec.member
 
   - it: serviceAccounts with name renders IAMPolicyMember using memberFrom.serviceAccountRef
     set:
@@ -35,16 +46,22 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          spec:
-            resourceRef:
-              external: "projects/my-proj"
-            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
-            memberFrom:
-              serviceAccountRef:
-                name: sqlinstance-sa
+      - isKind:
+          of: IAMPolicyMember
+      - equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - equal:
+          path: spec.memberFrom.serviceAccountRef.name
+          value: sqlinstance-sa
+      - notExists:
+          path: spec.member
 
   - it: serviceAccounts with email renders IAMPolicyMember using spec.member (cross-project support)
     set:
@@ -55,14 +72,22 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          spec:
-            resourceRef:
-              external: "projects/my-proj"
-            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
-            member: serviceAccount:other-sa@other-proj.iam.gserviceaccount.com
+      - isKind:
+          of: IAMPolicyMember
+      - equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - equal:
+          path: spec.member
+          value: serviceAccount:other-sa@other-proj.iam.gserviceaccount.com
+      - notExists:
+          path: spec.memberFrom
 
   - it: serviceAccounts list renders one IAMPolicyMember per entry (name + email mix)
     set:
@@ -74,18 +99,54 @@ tests:
     asserts:
       - hasDocuments:
           count: 2
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          spec:
-            memberFrom:
-              serviceAccountRef:
-                name: sa-one
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          spec:
-            member: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com
+
+      # doc 0 - name -> memberFrom
+      - documentIndex: 0
+        isKind:
+          of: IAMPolicyMember
+      - documentIndex: 0
+        equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - documentIndex: 0
+        equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - documentIndex: 0
+        equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - documentIndex: 0
+        equal:
+          path: spec.memberFrom.serviceAccountRef.name
+          value: sa-one
+      - documentIndex: 0
+        notExists:
+          path: spec.member
+
+      # doc 1 - email -> spec.member
+      - documentIndex: 1
+        isKind:
+          of: IAMPolicyMember
+      - documentIndex: 1
+        equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - documentIndex: 1
+        equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - documentIndex: 1
+        equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - documentIndex: 1
+        equal:
+          path: spec.member
+          value: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com
+      - documentIndex: 1
+        notExists:
+          path: spec.memberFrom
 
   - it: renders BOTH legacy and serviceAccounts IAMPolicyMembers when both are set
     set:
@@ -98,36 +159,74 @@ tests:
       - hasDocuments:
           count: 3
 
-      # Legacy IAMPolicyMember
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          spec:
-            resourceRef:
-              external: "projects/my-proj"
-            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
-            memberFrom:
-              serviceAccountRef:
-                name: legacy-sa
+      # doc 0 - serviceAccounts[0] name -> memberFrom (range renders before legacy)
+      - documentIndex: 0
+        isKind:
+          of: IAMPolicyMember
+      - documentIndex: 0
+        equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - documentIndex: 0
+        equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - documentIndex: 0
+        equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - documentIndex: 0
+        equal:
+          path: spec.memberFrom.serviceAccountRef.name
+          value: sa-one
+      - documentIndex: 0
+        notExists:
+          path: spec.member
 
-      # List: name -> memberFrom
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          spec:
-            resourceRef:
-              external: "projects/my-proj"
-            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
-            memberFrom:
-              serviceAccountRef:
-                name: sa-one
+      # doc 1 - serviceAccounts[1] email -> spec.member
+      - documentIndex: 1
+        isKind:
+          of: IAMPolicyMember
+      - documentIndex: 1
+        equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - documentIndex: 1
+        equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - documentIndex: 1
+        equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - documentIndex: 1
+        equal:
+          path: spec.member
+          value: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com
+      - documentIndex: 1
+        notExists:
+          path: spec.memberFrom
 
-      # List: email -> spec.member
-      - containsDocument:
-          apiVersion: iam.cnrm.cloud.google.com/v1beta1
-          kind: IAMPolicyMember
-          spec:
-            resourceRef:
-              external: "projects/my-proj"
-            role: organizations/909834982171/roles/cloudsql.serviceaccount.access
-            member: serviceAccount:sa-two@other-proj.iam.gserviceaccount.com
+      # doc 2 - legacy (renders after range)
+      - documentIndex: 2
+        isKind:
+          of: IAMPolicyMember
+      - documentIndex: 2
+        equal:
+          path: apiVersion
+          value: iam.cnrm.cloud.google.com/v1beta1
+      - documentIndex: 2
+        equal:
+          path: spec.resourceRef.external
+          value: "projects/my-proj"
+      - documentIndex: 2
+        equal:
+          path: spec.role
+          value: organizations/909834982171/roles/cloudsql.serviceaccount.access
+      - documentIndex: 2
+        equal:
+          path: spec.memberFrom.serviceAccountRef.name
+          value: legacy-sa
+      - documentIndex: 2
+        notExists:
+          path: spec.member

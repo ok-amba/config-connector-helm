@@ -59,4 +59,27 @@ spec:
     serviceAccountRef:
       name: {{ .Values.serviceAccountName }}
 ---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: sqluser-login-{{ .Values.serviceAccountName }}
+  {{- if .Values.argoSyncWave }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.argoSyncWave | quote }}
+  {{- end }}
+  labels:
+    {{- include "sqlinstance.labels" $ | nindent 4 }}
+    {{- range $k, $v := $.Values.labels }}
+    {{- printf "%s: %s" $k ($v | quote) | nindent 4 }}
+    {{- end }}
+spec:
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    external: "projects/{{ .Values.global.projectID | required "A project ID is required" }}"
+  # Required for IAM database authentication
+  role: roles/cloudsql.instanceUser
+  memberFrom:
+    serviceAccountRef:
+      name: {{ .Values.serviceAccountName }}
 {{- end }}
